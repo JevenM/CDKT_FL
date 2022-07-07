@@ -1,13 +1,15 @@
 import h5py as hf
 
-def  write_file(file_name = "../results/untitled.h5", **kwargs):
+
+def write_file(file_name="../results/untitled.h5", **kwargs):
     with hf.File(file_name, "w") as data_file:
         for key, value in kwargs.items():
             #print("%s == %s" % (key, value))
             data_file.create_dataset(key, data=value)
-    print("Successfully save to file!")
+    print("Successfully save to file! - data_utils")
 
-def read_data(file_name = "../results/untitled.h5"):
+
+def read_data(file_name="../results/untitled.h5"):
     print(":/")
     dic_data = {}
     with hf.File(file_name, "r") as f:
@@ -15,4 +17,4 @@ def read_data(file_name = "../results/untitled.h5"):
         #print("Keys: %s" % f.keys())
         for key in f.keys():
             dic_data[key] = f[key][:]
-    return  dic_data
+    return dic_data

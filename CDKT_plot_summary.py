@@ -4,19 +4,20 @@ from Setting import *
 import matplotlib.pyplot as plt
 from scipy.cluster.hierarchy import dendrogram
 
-plt.rcParams.update({'font.size': 16})  #font size 10 12 14 16 main 16
+plt.rcParams.update({'font.size': 16})  # font size 10 12 14 16 main 16
 plt.rcParams['lines.linewidth'] = 2
-YLim=0
-#Global variable
-markers_on = 10 #maker only at x = markers_on[]
-OUT_TYPE = ".pdf" #.eps, .pdf, .jpeg #output figure type
+YLim = 0
+
+# Global variable
+markers_on = 10  # maker only at x = markers_on[]
+OUT_TYPE = ".jpeg"  # .eps, .pdf, .pdf #output figure type
 
 color = {
     "gen": "royalblue",
     "cspe": "forestgreen",
     "cgen": "red",
     "c": "cyan",
-    "gspe": "darkorange",  #magenta
+    "gspe": "darkorange",  # magenta
     "gg": "yellow",
     "ggen": "darkviolet",
     "w": "white"
@@ -29,34 +30,35 @@ marker = {
     "cgen": "*"
 }
 
-def read_data(file_name = "../results/untitled.h5"):
+
+def read_data(file_name="../results/untitled.h5"):
     dic_data = {}
     with hf.File(file_name, "r") as f:
         # List all groups
-        #print("Keys: %s" % f.keys())
+        # print("Keys: %s" % f.keys())
         for key in f.keys():
             try:
                 dic_data[key] = f[key][:]
             except:
                 dic_data[key] = f[key]
-    return  dic_data
-
+    return dic_data
 
 
 def plot_dendrogram(rs_linkage_matrix, round, alg):
     # Plot the corresponding dendrogram
     # change p value to 5 if we want to get 5 levels
-    #dendogram supporting plot inside buitlin function, so we dont need to create our own method to plot figure or results
-    plt.title('#Round=%s'%(round))
+    # dendogram supporting plot inside buitlin function, so we dont need to create our own method to plot figure or results
+    plt.title('#Round=%s' % (round))
 
-    rs_dendrogram = dendrogram(rs_linkage_matrix, truncate_mode='level', p=K_Levels)
+    rs_dendrogram = dendrogram(
+        rs_linkage_matrix, truncate_mode='level', p=K_Levels)
     if(MODEL_TYPE == "cnn"):
         if(CLUSTER_METHOD == "gradient"):
             plt.ylim(0, 0.0006)
         else:
             plt.ylim(0, 1.)
     else:
-        plt.ylim(0,1.5)
+        plt.ylim(0, 1.5)
 
 
 def plot_dendo_data_dem(file_name):
@@ -70,12 +72,14 @@ def plot_dendo_data_dem(file_name):
     i = 0
     for i in range(8):
         plt.subplot(num_plots[i])
-        plot_dendrogram(dendo_data[i*Den_GAP], dendo_data_round[i*Den_GAP], RUNNING_ALG)
+        plot_dendrogram(dendo_data[i*Den_GAP],
+                        dendo_data_round[i*Den_GAP], RUNNING_ALG)
     plt.tight_layout()
-    plt.savefig(PLOT_PATH+ DATASET+"_den_" + file_name+OUT_TYPE)
+    plt.savefig(PLOT_PATH + DATASET+"_den_" + file_name+OUT_TYPE)
     return 0
 
-def plot_dendo_data_dem_shashi(file_name,type):
+
+def plot_dendo_data_dem_shashi(file_name, type):
     plt.rcParams.update({'font.size': 14})
     plt.figure(figsize=(12.0, 3.2))
     num_plots = [141, 142, 143, 144]
@@ -100,18 +104,20 @@ def plot_dendo_data_dem_shashi(file_name,type):
     plt.savefig("{}_cluster.pdf".format(type))
     return 0
 
+
 def plot_fixed_users():
-    if  DATASET == "Cifar-100":
+    if DATASET == "Cifar-100":
         YLim1 = 0.5
     else:
-        YLim1= 1.0
+        YLim1 = 1.0
     plt.rcParams.update({'font.size': 14})
     # fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(15.0, 4.4))
-    fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(nrows=1, ncols=5, sharex=True, sharey=True, figsize=(15.0, 4.4))
+    fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(
+        nrows=1, ncols=5, sharex=True, sharey=True, figsize=(15.0, 4.4))
     f_data = read_data(RS_PATH + name['CDKTrepfKLNnew'])
     print("CDKTrep Global :", f_data['root_test'][12])
     print("CDKTrep Global:", f_data['root_test'][XLim-1])
-    print("CDKTrep C-GEN:",f_data['cg_avg_data_test'][XLim-1])
+    print("CDKTrep C-GEN:", f_data['cg_avg_data_test'][XLim-1])
 
     ax1.plot(f_data['root_test'], label="Global", linestyle="--", color=color["gen"], marker=marker["gen"],
              markevery=markers_on)
@@ -148,9 +154,12 @@ def plot_fixed_users():
     # end-subfig2----begin-subfig3
 
     fed_data2 = read_data(RS_PATH + name['CDKTfullfKLNnew'])
-    ax3.plot(fed_data2['root_test'], label="Global", linestyle="--", color=color["gen"], marker=marker["gen"], markevery=markers_on)
-    ax3.plot(fed_data2['cs_avg_data_test'], label="C-SPE", color=color["cspe"], marker=marker["cspe"], markevery=markers_on)
-    ax3.plot(fed_data2['cg_avg_data_test'], label="C-GEN", color=color["cgen"], marker=marker["cgen"], markevery=markers_on)
+    ax3.plot(fed_data2['root_test'], label="Global", linestyle="--",
+             color=color["gen"], marker=marker["gen"], markevery=markers_on)
+    ax3.plot(fed_data2['cs_avg_data_test'], label="C-SPE",
+             color=color["cspe"], marker=marker["cspe"], markevery=markers_on)
+    ax3.plot(fed_data2['cg_avg_data_test'], label="C-GEN",
+             color=color["cgen"], marker=marker["cgen"], markevery=markers_on)
     # ax3.legend(loc="best", prop={'size': 8})
     ax3.set_xlim(0, XLim)
     ax3.set_ylim(YLim, YLim1)
@@ -162,9 +171,12 @@ def plot_fixed_users():
 
     fed_data = read_data(RS_PATH + name['fedavgfixednew'])
     print("FedAvg Global:", fed_data['root_test'][XLim-1])
-    ax4.plot(fed_data['root_test'], label="Global", linestyle="--", color=color["gen"], marker=marker["gen"], markevery=markers_on)
-    ax4.plot(fed_data['cs_avg_data_test'], label="C-SPE", color=color["cspe"], marker=marker["cspe"], markevery=markers_on)
-    ax4.plot(fed_data['cg_avg_data_test'], label="C-GEN", color=color["cgen"], marker=marker["cgen"], markevery=markers_on)
+    ax4.plot(fed_data['root_test'], label="Global", linestyle="--",
+             color=color["gen"], marker=marker["gen"], markevery=markers_on)
+    ax4.plot(fed_data['cs_avg_data_test'], label="C-SPE",
+             color=color["cspe"], marker=marker["cspe"], markevery=markers_on)
+    ax4.plot(fed_data['cg_avg_data_test'], label="C-GEN",
+             color=color["cgen"], marker=marker["cgen"], markevery=markers_on)
     # plt.legend(loc="best", prop={'size': 8})
     ax4.set_xlim(0, XLim)
     ax4.set_ylim(YLim, YLim1)
@@ -183,9 +195,12 @@ def plot_fixed_users():
 
     fed_data = read_data(RS_PATH + name['CDKTnotransferF'])
     print("CDKTnotransfer Global:", fed_data['root_test'][XLim-1])
-    ax5.plot(fed_data['root_test'], label="Global", linestyle="--", color=color["gen"], marker=marker["gen"], markevery=markers_on)
-    ax5.plot(fed_data['cs_avg_data_test'], label="C-SPE", color=color["cspe"], marker=marker["cspe"], markevery=markers_on)
-    ax5.plot(fed_data['cg_avg_data_test'], label="C-GEN", color=color["cgen"], marker=marker["cgen"], markevery=markers_on)
+    ax5.plot(fed_data['root_test'], label="Global", linestyle="--",
+             color=color["gen"], marker=marker["gen"], markevery=markers_on)
+    ax5.plot(fed_data['cs_avg_data_test'], label="C-SPE",
+             color=color["cspe"], marker=marker["cspe"], markevery=markers_on)
+    ax5.plot(fed_data['cg_avg_data_test'], label="C-GEN",
+             color=color["cgen"], marker=marker["cgen"], markevery=markers_on)
     # plt.legend(loc="best", prop={'size': 8})
     ax5.set_xlim(0, XLim)
     ax5.set_ylim(YLim, YLim1)
@@ -198,10 +213,10 @@ def plot_fixed_users():
     fig.legend(handles, labels, loc="lower center", borderaxespad=0.1, ncol=5,
                prop={'size': 16})  # mode="expand",  mode="expand", frameon=False,
     plt.subplots_adjust(bottom=0.25)
-    plt.savefig(PLOT_PATH+ DATASET + "fixed_users" + OUT_TYPE)
-
+    plt.savefig(PLOT_PATH + DATASET + "fixed_users" + OUT_TYPE)
 
     return 0
+
 
 def plot_subset_users():
     if DATASET == "Cifar-100":
@@ -211,7 +226,8 @@ def plot_subset_users():
     plt.rcParams.update({'font.size': 14})
     plt.rcParams.update({'font.size': 14})
     # fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(15.0, 4.4))
-    fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(nrows=1, ncols=5, sharex=True, sharey=True, figsize=(15.0, 4.4))
+    fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(
+        nrows=1, ncols=5, sharex=True, sharey=True, figsize=(15.0, 4.4))
     f_data = read_data(RS_PATH + name['CDKTrepsKLNnew'])
     print("CDKTrep Global :", f_data['root_test'][12])
     print("CDKTrep C-GEN:", f_data['cg_avg_data_test'][XLim - 1])
@@ -292,9 +308,12 @@ def plot_subset_users():
 
     fed_data = read_data(RS_PATH + name['CDKTnotransferS'])
     print("CDKT no transfer Global:", fed_data['root_test'][XLim-1])
-    ax5.plot(fed_data['root_test'], label="Global", linestyle="--", color=color["gen"], marker=marker["gen"], markevery=markers_on)
-    ax5.plot(fed_data['cs_avg_data_test'], label="C-SPE", color=color["cspe"], marker=marker["cspe"], markevery=markers_on)
-    ax5.plot(fed_data['cg_avg_data_test'], label="C-GEN", color=color["cgen"], marker=marker["cgen"], markevery=markers_on)
+    ax5.plot(fed_data['root_test'], label="Global", linestyle="--",
+             color=color["gen"], marker=marker["gen"], markevery=markers_on)
+    ax5.plot(fed_data['cs_avg_data_test'], label="C-SPE",
+             color=color["cspe"], marker=marker["cspe"], markevery=markers_on)
+    ax5.plot(fed_data['cg_avg_data_test'], label="C-GEN",
+             color=color["cgen"], marker=marker["cgen"], markevery=markers_on)
     # plt.legend(loc="best", prop={'size': 8})
     ax5.set_xlim(0, XLim)
     ax5.set_ylim(YLim, YLim1)
@@ -307,14 +326,15 @@ def plot_subset_users():
     fig.legend(handles, labels, loc="lower center", borderaxespad=0.1, ncol=5,
                prop={'size': 16})  # mode="expand",  mode="expand", frameon=False,
     plt.subplots_adjust(bottom=0.25)
-    plt.savefig(PLOT_PATH+ DATASET + "subset_users" + OUT_TYPE)
-
+    plt.savefig(PLOT_PATH + DATASET + "subset_users" + OUT_TYPE)
 
     return 0
 
+
 def plot_metric_fixed():
     plt.rcParams.update({'font.size': 14})
-    fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(15.0, 4.4))
+    fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4,
+                                             sharex=True, sharey=True, figsize=(15.0, 4.4))
     # fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(nrows=1, ncols=5, sharex=True, sharey=True, figsize=(15.0, 4.4))
     f_data = read_data(RS_PATH + name['CDKTrepfKLNnew'])
     print("CDKTKLN Global :", f_data['root_test'][12])
@@ -411,17 +431,17 @@ def plot_metric_fixed():
     fig.legend(handles, labels, loc="lower center", borderaxespad=0.1, ncol=5,
                prop={'size': 16})  # mode="expand",  mode="expand", frameon=False,
     plt.subplots_adjust(bottom=0.25)
-    plt.savefig(PLOT_PATH+ DATASET + "metric_fixed" + OUT_TYPE)
-
+    plt.savefig(PLOT_PATH + DATASET + "metric_fixed" + OUT_TYPE)
 
     return 0
 
 
 def plot_metric_subset():
     plt.rcParams.update({'font.size': 14})
-    fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(15.0, 4.4))
+    fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4,
+                                             sharex=True, sharey=True, figsize=(15.0, 4.4))
     # fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(nrows=1, ncols=5, sharex=True, sharey=True, figsize=(15.0, 4.4))
-    if DATASET=="Cifar-10":
+    if DATASET == "Cifar-10":
         f_data = read_data(RS_PATH + name['CDKTrepfullsKLN'])
     else:
         f_data = read_data(RS_PATH + name['CDKTrepsKLNnew'])
@@ -519,10 +539,10 @@ def plot_metric_subset():
     fig.legend(handles, labels, loc="lower center", borderaxespad=0.1, ncol=5,
                prop={'size': 16})  # mode="expand",  mode="expand", frameon=False,
     plt.subplots_adjust(bottom=0.25)
-    plt.savefig(PLOT_PATH+ DATASET + "metric_subset" + OUT_TYPE)
-
+    plt.savefig(PLOT_PATH + DATASET + "metric_subset" + OUT_TYPE)
 
     return 0
+
 
 def plot_same_vs_hetero():
     if DATASET == "Cifar-100":
@@ -530,7 +550,8 @@ def plot_same_vs_hetero():
     else:
         YLim1 = 1.0
     plt.rcParams.update({'font.size': 14})
-    fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(15.0, 4.4))
+    fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4,
+                                             sharex=True, sharey=True, figsize=(15.0, 4.4))
     # fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(nrows=1, ncols=5, sharex=True, sharey=True, figsize=(15.0, 4.4))
     f_data = read_data(RS_PATH + name['CDKTrepfKLNnew'])
     print("CDKTKLN Global :", f_data['root_test'][12])
@@ -569,7 +590,7 @@ def plot_same_vs_hetero():
     ax2.set_xlabel("#Global Rounds")
 
     # end-subfig2----begin-subfig3
-    if DATASET=="Cifar-10" or DATASET == "Cifar-100":
+    if DATASET == "Cifar-10" or DATASET == "Cifar-100":
         fed_data2 = read_data(RS_PATH + name['CDKTrepfullsKLNnew'])
     else:
         fed_data2 = read_data(RS_PATH + name['CDKTrepsKLNnew'])
@@ -629,14 +650,15 @@ def plot_same_vs_hetero():
     fig.legend(handles, labels, loc="lower center", borderaxespad=0.1, ncol=5,
                prop={'size': 16})  # mode="expand",  mode="expand", frameon=False,
     plt.subplots_adjust(bottom=0.25)
-    plt.savefig(PLOT_PATH+ DATASET + "same_vs_hetero" + OUT_TYPE)
-
+    plt.savefig(PLOT_PATH + DATASET + "same_vs_hetero" + OUT_TYPE)
 
     return 0
 
+
 def plot_alpha_effect_fixed():
     plt.rcParams.update({'font.size': 14})
-    fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(15.0, 4.4))
+    fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4,
+                                             sharex=True, sharey=True, figsize=(15.0, 4.4))
     # fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(nrows=1, ncols=5, sharex=True, sharey=True, figsize=(15.0, 4.4))
     f_data = read_data(RS_PATH + name['CDKTrepfKLN_alpha_0.01'])
     print("CDKTKLN Global :", f_data['root_test'][12])
@@ -732,14 +754,15 @@ def plot_alpha_effect_fixed():
     fig.legend(handles, labels, loc="lower center", borderaxespad=0.1, ncol=5,
                prop={'size': 16})  # mode="expand",  mode="expand", frameon=False,
     plt.subplots_adjust(bottom=0.25)
-    plt.savefig(PLOT_PATH+ DATASET + "alpha_effect_fixed" + OUT_TYPE)
-
+    plt.savefig(PLOT_PATH + DATASET + "alpha_effect_fixed" + OUT_TYPE)
 
     return 0
 
+
 def plot_beta_effect_fixed():
     plt.rcParams.update({'font.size': 14})
-    fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(15.0, 4.4))
+    fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4,
+                                             sharex=True, sharey=True, figsize=(15.0, 4.4))
     # fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(nrows=1, ncols=5, sharex=True, sharey=True, figsize=(15.0, 4.4))
     f_data = read_data(RS_PATH + name['CDKTrepfKLN_beta_0.01'])
     print("CDKTKLN Global :", f_data['root_test'][12])
@@ -835,13 +858,15 @@ def plot_beta_effect_fixed():
     fig.legend(handles, labels, loc="lower center", borderaxespad=0.1, ncol=5,
                prop={'size': 16})  # mode="expand",  mode="expand", frameon=False,
     plt.subplots_adjust(bottom=0.25)
-    plt.savefig(PLOT_PATH+ DATASET + "beta_effect_fixed" + OUT_TYPE)
-
+    plt.savefig(PLOT_PATH + DATASET + "beta_effect_fixed" + OUT_TYPE)
 
     return 0
+
+
 def plot_alpha_effect_subset():
     plt.rcParams.update({'font.size': 14})
-    fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(15.0, 4.4))
+    fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4,
+                                             sharex=True, sharey=True, figsize=(15.0, 4.4))
     # fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(nrows=1, ncols=5, sharex=True, sharey=True, figsize=(15.0, 4.4))
     f_data = read_data(RS_PATH + name['CDKTrepsKLN_alpha_0.05'])
     print("CDKTKLN Global :", f_data['root_test'][12])
@@ -937,14 +962,15 @@ def plot_alpha_effect_subset():
     fig.legend(handles, labels, loc="lower center", borderaxespad=0.1, ncol=5,
                prop={'size': 16})  # mode="expand",  mode="expand", frameon=False,
     plt.subplots_adjust(bottom=0.25)
-    plt.savefig(PLOT_PATH+ DATASET + "alpha_effect_subset" + OUT_TYPE)
-
+    plt.savefig(PLOT_PATH + DATASET + "alpha_effect_subset" + OUT_TYPE)
 
     return 0
 
+
 def plot_beta_effect_subset():
     plt.rcParams.update({'font.size': 14})
-    fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(15.0, 4.4))
+    fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4,
+                                             sharex=True, sharey=True, figsize=(15.0, 4.4))
     # fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(nrows=1, ncols=5, sharex=True, sharey=True, figsize=(15.0, 4.4))
     f_data = read_data(RS_PATH + name['CDKTrepsKLN_beta_0.005'])
     print("CDKTKLN Global :", f_data['root_test'][12])
@@ -1040,10 +1066,13 @@ def plot_beta_effect_subset():
     fig.legend(handles, labels, loc="lower center", borderaxespad=0.1, ncol=5,
                prop={'size': 16})  # mode="expand",  mode="expand", frameon=False,
     plt.subplots_adjust(bottom=0.25)
-    plt.savefig(PLOT_PATH+ DATASET + "beta_effect_subset" + OUT_TYPE)
+    plt.savefig(PLOT_PATH + DATASET + "beta_effect_subset" + OUT_TYPE)
+
+
 def plot_alpha_effect2():
     plt.rcParams.update({'font.size': 14})
-    fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(15.0, 4.4))
+    fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4,
+                                             sharex=True, sharey=True, figsize=(15.0, 4.4))
     # fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(nrows=1, ncols=5, sharex=True, sharey=True, figsize=(15.0, 4.4))
     f_data = read_data(RS_PATH + name['CDKTrepfullfKLN_alpha_0.01'])
     print("CDKTKLN Global :", f_data['root_test'][12])
@@ -1139,14 +1168,15 @@ def plot_alpha_effect2():
     fig.legend(handles, labels, loc="lower center", borderaxespad=0.1, ncol=5,
                prop={'size': 16})  # mode="expand",  mode="expand", frameon=False,
     plt.subplots_adjust(bottom=0.25)
-    plt.savefig(PLOT_PATH+ DATASET + "alpha_effect" + OUT_TYPE)
-
+    plt.savefig(PLOT_PATH + DATASET + "alpha_effect" + OUT_TYPE)
 
     return 0
 
+
 def plot_beta_effect2():
     plt.rcParams.update({'font.size': 14})
-    fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(15.0, 4.4))
+    fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4,
+                                             sharex=True, sharey=True, figsize=(15.0, 4.4))
     # fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(nrows=1, ncols=5, sharex=True, sharey=True, figsize=(15.0, 4.4))
     f_data = read_data(RS_PATH + name['CDKTrepfullfKLN_beta_0.03'])
     print("CDKTKLN Global :", f_data['root_test'][12])
@@ -1242,14 +1272,15 @@ def plot_beta_effect2():
     fig.legend(handles, labels, loc="lower center", borderaxespad=0.1, ncol=5,
                prop={'size': 16})  # mode="expand",  mode="expand", frameon=False,
     plt.subplots_adjust(bottom=0.25)
-    plt.savefig(PLOT_PATH+ DATASET + "beta_effect" + OUT_TYPE)
-
+    plt.savefig(PLOT_PATH + DATASET + "beta_effect" + OUT_TYPE)
 
     return 0
 
+
 def plot_KSC():
     plt.rcParams.update({'font.size': 80})
-    fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, sharex=True, sharey=True, figsize=(45.0, 25))
+    fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2,
+                                   sharex=True, sharey=True, figsize=(45.0, 25))
     # fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(nrows=1, ncols=5, sharex=True, sharey=True, figsize=(15.0, 4.4))
     fedavg_data = read_data(RS_PATH + name['fedavg_KSC'])
     fedBD_data = read_data(RS_PATH + name['FedBD_KSC'])
@@ -1274,7 +1305,6 @@ def plot_KSC():
     ax1.grid()
     # subfig1-end---begin---subfig 2
 
-
     # print("CDKTKL Global", f_data['root_test'][12])
     # print("CDKTKL C-SPE:", f_data['cs_avg_data_test'][XLim - 1])
     ax2.plot(fedavg_data['cg_avg_data_test'], label="FedAvg", linestyle="--", color=color["gen"], marker=marker["gen"],
@@ -1294,11 +1324,13 @@ def plot_KSC():
     fig.legend(handles, labels, loc="lower center", borderaxespad=0.1, ncol=3,
                prop={'size': 80})  # mode="expand",  mode="expand", frameon=False,
     plt.subplots_adjust(bottom=0.25)
-    plt.savefig(PLOT_PATH+ DATASET + "KSC" + OUT_TYPE)
+    plt.savefig(PLOT_PATH + DATASET + "KSC" + OUT_TYPE)
+
 
 def plot_demlearn_vs_demlearn_p():
     plt.rcParams.update({'font.size': 16})
-    fig, (ax3, ax2, ax6, ax5) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(15.0, 4.4))
+    fig, (ax3, ax2, ax6, ax5) = plt.subplots(nrows=1, ncols=4,
+                                             sharex=True, sharey=True, figsize=(15.0, 4.4))
     f_data = read_data(RS_PATH + name['avg3wf'])
     ax2.plot(f_data['root_test'], label="GEN", linestyle="--", color=color["gen"], marker=marker["gen"],
              markevery=markers_on)
@@ -1383,19 +1415,21 @@ def plot_demlearn_vs_demlearn_p():
     ax6.set_xlabel("#Global Rounds")
     ax6.grid()
 
-
     plt.tight_layout()
     # plt.grid(linewidth=0.25)
 
     handles, labels = ax3.get_legend_handles_labels()
-    fig.legend(handles, labels, loc="lower center", borderaxespad=0.1,  ncol=5, prop={'size': 14})  # mode="expand",mode="expand", frameon=False,
+    fig.legend(handles, labels, loc="lower center", borderaxespad=0.1,  ncol=5, prop={
+               'size': 14})  # mode="expand",mode="expand", frameon=False,
     plt.subplots_adjust(bottom=0.22)
-    plt.savefig(PLOT_PATH+ DATASET + "_dem_vs_K_vary"+OUT_TYPE)
+    plt.savefig(PLOT_PATH + DATASET + "_dem_vs_K_vary"+OUT_TYPE)
     return 0
+
 
 def plot_demlearn_p_mu_vari():
     plt.rcParams.update({'font.size': 14})
-    fig, (ax1, ax2, ax4, ax3) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(15.0, 4.4))
+    fig, (ax1, ax2, ax4, ax3) = plt.subplots(nrows=1, ncols=4,
+                                             sharex=True, sharey=True, figsize=(15.0, 4.4))
     f_data = read_data(RS_PATH + name['prox3wmu005'])
     ax1.plot(f_data['root_test'], label="Global", linestyle="--", color=color["gen"], marker=marker["gen"],
              markevery=markers_on)
@@ -1480,18 +1514,20 @@ def plot_demlearn_p_mu_vari():
     ax4.set_xlabel("#Global Rounds")
     ax4.grid()
     handles, labels = ax1.get_legend_handles_labels()
-    fig.legend(handles, labels, loc="lower center", borderaxespad=0.1, ncol=5, prop={'size': 15})
+    fig.legend(handles, labels, loc="lower center",
+               borderaxespad=0.1, ncol=5, prop={'size': 15})
     plt.tight_layout()
     plt.subplots_adjust(bottom=0.22)
     # plt.grid(linewidth=0.25)
 
-    plt.savefig(PLOT_PATH+ DATASET + "_dem_prox_mu_vary"+OUT_TYPE)
+    plt.savefig(PLOT_PATH + DATASET + "_dem_prox_mu_vary"+OUT_TYPE)
     return 0
 
 
 def plot_demlearn_gamma_vari():
     plt.rcParams.update({'font.size': 14})
-    fig, (ax3, ax2, ax1) = plt.subplots(nrows=1, ncols=3, sharex=True, sharey=True, figsize=(10.0, 4.2))
+    fig, (ax3, ax2, ax1) = plt.subplots(nrows=1, ncols=3,
+                                        sharex=True, sharey=True, figsize=(10.0, 4.2))
     # fig, (ax3, ax2, ax1, ax4) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(13.0, 4.2))
     f_data = read_data(RS_PATH + name['avg3w'])
     ax1.plot(f_data['root_test'], label="Global", linestyle="--", color=color["gen"], marker=marker["gen"],
@@ -1561,13 +1597,14 @@ def plot_demlearn_gamma_vari():
     fig.legend(handles, labels, loc="lower center", borderaxespad=0.1, ncol=5,
                prop={'size': 14})  # mode="expand",
     plt.subplots_adjust(bottom=0.24)
-    plt.savefig(PLOT_PATH+ DATASET+"_dem_avg_gamma_vary"+OUT_TYPE)
+    plt.savefig(PLOT_PATH + DATASET+"_dem_avg_gamma_vary"+OUT_TYPE)
     return 0
 
 
 def plot_demlearn_gamma_vari_clients():
     plt.rcParams.update({'font.size': 14})
-    fig, (ax3, ax2, ax1) = plt.subplots(nrows=1, ncols=3, sharex=True, sharey=True, figsize=(10.0, 3.96))
+    fig, (ax3, ax2, ax1) = plt.subplots(nrows=1, ncols=3,
+                                        sharex=True, sharey=True, figsize=(10.0, 3.96))
     # fig, (ax3, ax2, ax1, ax4) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(13.0, 4.2))
     f_data = read_data(RS_PATH + name['avg3w'])
     ax1.plot(f_data['cs_data_test'], linewidth=1.2)
@@ -1606,16 +1643,17 @@ def plot_demlearn_gamma_vari_clients():
     ax3.set_ylabel("Testing Accuracy")
     ax3.grid()
 
-
     plt.tight_layout()
-    plt.savefig(PLOT_PATH+ DATASET+"_dem_avg_gamma_vary_clients"+OUT_TYPE)
+    plt.savefig(PLOT_PATH + DATASET+"_dem_avg_gamma_vary_clients"+OUT_TYPE)
     return 0
+
 
 def plot_demlearn_w_vs_g():
     plt.rcParams.update({'font.size': 12})
     # plt.grid(linewidth=0.25)
     # fig, ((ax1, ax2, ax3),(ax4, ax5, ax6))= plt.subplots(nrows=2, ncols=3, sharex=True, sharey=True, figsize=(10.0, 7))
-    fig, (ax1, ax4, ax2, ax3) = plt.subplots(nrows=1, ncols=4, sharex=True, sharey=True, figsize=(13.0, 4.2))
+    fig, (ax1, ax4, ax2, ax3) = plt.subplots(nrows=1, ncols=4,
+                                             sharex=True, sharey=True, figsize=(13.0, 4.2))
     f_data = read_data(RS_PATH + name['avg3w'])
     ax1.plot(f_data['root_test'], label="Global", linestyle="--", color=color["gen"], marker=marker["gen"],
              markevery=markers_on)
@@ -1680,11 +1718,13 @@ def plot_demlearn_w_vs_g():
     plt.tight_layout()
 
     handles, labels = ax1.get_legend_handles_labels()
-    fig.legend(handles, labels, loc="lower center", borderaxespad=0.1,  ncol=5, prop={'size': 14})  # mode="expand",mode="expand", frameon=False,
+    fig.legend(handles, labels, loc="lower center", borderaxespad=0.1,  ncol=5, prop={
+               'size': 14})  # mode="expand",mode="expand", frameon=False,
 
     plt.subplots_adjust(bottom=0.24)
     plt.savefig(PLOT_PATH + DATASET + "_w_vs_g"+OUT_TYPE)
     return 0
+
 
 def plot_all_figs():
     # global CLUSTER_METHOD
@@ -1714,11 +1754,12 @@ def plot_all_figs():
     # plt.show()
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
+    # figure
     PLOT_PATH = PLOT_PATH_FIG
+    # results, h5 files
     RS_PATH = FIG_PATH
 
-    #### PLOT MNIST #####
     print("----- PLOT MNIST ------")
     DATASET = "mnist"
     NUM_GLOBAL_ITERS = 100
@@ -1751,24 +1792,24 @@ if __name__=='__main__':
         # "prox3wmu002": "mnist_demlearn-p_I60_K3_T2_b1-0_dTrue_m0-002_w.h5",
         # "prox3wmu0005": "mnist_demlearn-p_I60_K3_T2_b1-0_dTrue_m0-0005_w.h5",
         # "prox3wmu005": "mnist_demlearn-p_I60_K3_T2_b1-0_dTrue_m0-005_w.h5",
-        "fedavgfixed":"fedavg_mnist_I100_sTrue_fTrue_RFFalse_SSFalse_gmKL_lmNorm2.h5",
-        "CDKTrepfKLN":"CDKT_mnist_I100_sTrue_fFalse_RFFalse_SSFalse_gmKL_lmNorm2.h5",
-        "CDKTrepfullfKLN":"CDKT_mnist_I100_sTrue_fFalse_RFTrue_SSFalse_gmKL_lmNorm2.h5",
-        "CDKTfullfKLN":"CDKT_mnist_I100_sTrue_fTrue_RFFalse_SSFalse_gmKL_lmNorm2.h5",
-        "fedavgsub":"fedavg_mnist_I100_sTrue_fTrue_RFTrue_SSTrue_gmKL_lmNorm2.h5",
-        "CDKTrepsKLN":"CDKT_mnist_I100_sTrue_fFalse_RFFalse_SSTrue_gmKL_lmNorm2.h5",
-        "CDKTrepfullsKLN":"CDKT_mnist_I100_sTrue_fFalse_RFTrue_SSTrue_gmKL_lmNorm2.h5",
-        "CDKTfullsKLN":"CDKT_mnist_I100_sTrue_fTrue_RFTrue_SSTrue_gmKL_lmNorm2.h5",
-        "CDKTrepfullfKL":"CDKT_mnist_I100_sTrue_fFalse_RFTrue_SSFalse_gmKL_lmKL.h5",
-        "CDKTrepfullfN":"CDKT_mnist_I100_sTrue_fFalse_RFTrue_SSFalse_gmNorm2_lmNorm2.h5",
-        "CDKTrepfullfJ":"CDKT_mnist_I100_sTrue_fFalse_RFTrue_SSFalse_gmJSD_lmJSD.h5",
-        "CDKTrepsKL":"CDKT_mnist_I100_sTrue_fFalse_RFFalse_SSTrue_gmKL_lmKL.h5",
-        "CDKTrepsN":"CDKT_mnist_I100_sTrue_fFalse_RFFalse_SSTrue_gmNorm2_lmNorm2.h5",
-        "CDKTrepsJ":"CDKT_mnist_I100_sTrue_fFalse_RFFalse_SSTrue_gmJSD_lmJSD.h5",
-        "CDKTnotransferF":"CDKT_mnist_I100_sTrue_fFalse_a0_b0_RFFalse_SSFalse_accFalse_gmKL_lmNorm2.h5",
-        "CDKTnotransferS":"CDKT_mnist_I100_sTrue_fFalse_a0_b0_RFFalse_SSTrue_accFalse_gmKL_lmNorm2.h5",
-        "CDKTrepfullHfKLN":"CDKT_mnist_I100_sFalse_fFalse_RFTrue_SSFalse_gmKL_lmNorm2.h5",
-        "CDKTrepHsKLN":"CDKT_mnist_I100_sFalse_fFalse_RFFalse_SSTrue_gmKL_lmNorm2.h5",
+        "fedavgfixed": "fedavg_mnist_I100_sTrue_fTrue_RFFalse_SSFalse_gmKL_lmNorm2.h5",
+        "CDKTrepfKLN": "CDKT_mnist_I100_sTrue_fFalse_RFFalse_SSFalse_gmKL_lmNorm2.h5",
+        "CDKTrepfullfKLN": "CDKT_mnist_I100_sTrue_fFalse_RFTrue_SSFalse_gmKL_lmNorm2.h5",
+        "CDKTfullfKLN": "CDKT_mnist_I100_sTrue_fTrue_RFFalse_SSFalse_gmKL_lmNorm2.h5",
+        "fedavgsub": "fedavg_mnist_I100_sTrue_fTrue_RFTrue_SSTrue_gmKL_lmNorm2.h5",
+        "CDKTrepsKLN": "CDKT_mnist_I100_sTrue_fFalse_RFFalse_SSTrue_gmKL_lmNorm2.h5",
+        "CDKTrepfullsKLN": "CDKT_mnist_I100_sTrue_fFalse_RFTrue_SSTrue_gmKL_lmNorm2.h5",
+        "CDKTfullsKLN": "CDKT_mnist_I100_sTrue_fTrue_RFTrue_SSTrue_gmKL_lmNorm2.h5",
+        "CDKTrepfullfKL": "CDKT_mnist_I100_sTrue_fFalse_RFTrue_SSFalse_gmKL_lmKL.h5",
+        "CDKTrepfullfN": "CDKT_mnist_I100_sTrue_fFalse_RFTrue_SSFalse_gmNorm2_lmNorm2.h5",
+        "CDKTrepfullfJ": "CDKT_mnist_I100_sTrue_fFalse_RFTrue_SSFalse_gmJSD_lmJSD.h5",
+        "CDKTrepsKL": "CDKT_mnist_I100_sTrue_fFalse_RFFalse_SSTrue_gmKL_lmKL.h5",
+        "CDKTrepsN": "CDKT_mnist_I100_sTrue_fFalse_RFFalse_SSTrue_gmNorm2_lmNorm2.h5",
+        "CDKTrepsJ": "CDKT_mnist_I100_sTrue_fFalse_RFFalse_SSTrue_gmJSD_lmJSD.h5",
+        "CDKTnotransferF": "CDKT_mnist_I100_sTrue_fFalse_a0_b0_RFFalse_SSFalse_accFalse_gmKL_lmNorm2.h5",
+        "CDKTnotransferS": "CDKT_mnist_I100_sTrue_fFalse_a0_b0_RFFalse_SSTrue_accFalse_gmKL_lmNorm2.h5",
+        "CDKTrepfullHfKLN": "CDKT_mnist_I100_sFalse_fFalse_RFTrue_SSFalse_gmKL_lmNorm2.h5",
+        "CDKTrepHsKLN": "CDKT_mnist_I100_sFalse_fFalse_RFFalse_SSTrue_gmKL_lmNorm2.h5",
         "fedavgfixednew": "fedavg_mnist_I100_sTrue_fFalse_a0.12_b0.6_RFTrue_SSFalse_accFalse_gmKL_lmNorm2.h5",
         "CDKTrepfKLNnew": "CDKT_mnist_I100_sTrue_fFalse_a0.06_b0.6_RFFalse_SSFalse_accFalse_gmKL_lmNorm2.h5",
         "CDKTrepfullfKLNnew": "CDKT_mnist_I100_sTrue_fFalse_a0.07_b0.5_RFTrue_SSFalse_accFalse_gmKL_lmNorm2.h5",
@@ -1777,7 +1818,7 @@ if __name__=='__main__':
         "CDKTrepsKLNnew": "CDKT_mnist_I100_sTrue_fFalse_a0.25_b0.15_RFFalse_SSTrue_accFalse_gmKL_lmNorm2.h5",
         "CDKTrepfullsKLNnew": "CDKT_mnist_I100_sTrue_fFalse_a0.25_b0.06_RFTrue_SSTrue_accFalse_gmKL_lmNorm2.h5",
         "CDKTfullsKLNnew": "CDKT_mnist_I100_sTrue_fTrue_a0.25_b0.1_RFFalse_SSTrue_accFalse_gmKL_lmNorm2.h5",
-        "CDKTrepsKLnew":"CDKT_mnist_I100_sTrue_fFalse_a2_b0.2_RFFalse_SSTrue_accFalse_gmKL_lmKL.h5",
+        "CDKTrepsKLnew": "CDKT_mnist_I100_sTrue_fFalse_a2_b0.2_RFFalse_SSTrue_accFalse_gmKL_lmKL.h5",
         "CDKTrepsNnew": "CDKT_mnist_I100_sTrue_fFalse_a0.25_b0.01_RFFalse_SSTrue_accFalse_gmNorm2_lmNorm2.h5",
         "CDKTrepsJnew": "CDKT_mnist_I100_sTrue_fFalse_a2.5_b0.2_RFFalse_SSTrue_accFalse_gmJSD_lmJSD.h5",
         "CDKTrepfKLnew": "CDKT_mnist_I100_sTrue_fFalse_a0.3_b0.15_RFFalse_SSFalse_accFalse_gmKL_lmKL.h5",
@@ -1786,7 +1827,7 @@ if __name__=='__main__':
         "CDKTrepHfKLNnew": "CDKT_mnist_I100_sFalse_fFalse_RFTrue_SSFalse_gmKL_lmNorm2.h5",
         "CDKTrepHsKLNnew": "CDKT_mnist_I100_sFalse_fFalse_RFFalse_SSTrue_gmKL_lmNorm2.h5"
 
-        }
+    }
 
     plot_all_figs()
 
@@ -1838,13 +1879,13 @@ if __name__=='__main__':
         "CDKTrepsN": "CDKT_fmnist_I100_sTrue_fFalse_RFFalse_SSTrue_gmNorm2_lmNorm2.h5",
         "CDKTrepsJ": "CDKT_fmnist_I100_sTrue_fFalse_RFFalse_SSTrue_gmJSD_lmJSD.h5",
         "CDKTnotransferF": "CDKT_fmnist_I100_sTrue_fFalse_a0_b0_RFFalse_SSFalse_accFalse_gmKL_lmNorm2.h5",
-        "CDKTnotransferS":"CDKT_fmnist_I100_sTrue_fFalse_a0_b0_RFFalse_SSTrue_accFalse_gmKL_lmNorm2.h5",
+        "CDKTnotransferS": "CDKT_fmnist_I100_sTrue_fFalse_a0_b0_RFFalse_SSTrue_accFalse_gmKL_lmNorm2.h5",
         "CDKTrepfullHfKLN": "CDKT_fmnist_I100_sFalse_fFalse_RFTrue_SSFalse_gmKL_lmNorm2.h5",
         "CDKTrepHsKLN": "CDKT_fmnist_I100_sFalse_fFalse_RFFalse_SSTrue_gmKL_lmNorm2.h5",
-        "CDKTrepfullfKLN_alpha_0.05":"CDKT_fmnist_I100_sFalse_fFalse_a0.05_b0.03_RFTrue_SSFalse_gmKL_lmNorm2.h5",
+        "CDKTrepfullfKLN_alpha_0.05": "CDKT_fmnist_I100_sFalse_fFalse_a0.05_b0.03_RFTrue_SSFalse_gmKL_lmNorm2.h5",
         "CDKTrepfullfKLN_alpha_0.1": "CDKT_fmnist_I100_sFalse_fFalse_a0.1_b0.03_RFTrue_SSFalse_gmKL_lmNorm2.h5",
         "CDKTrepfullfKLN_alpha_0.5": "CDKT_fmnist_I100_sFalse_fFalse_a0.5_b0.03_RFTrue_SSFalse_gmKL_lmNorm2.h5",
-        "CDKTrepfullfKLN_beta_0.1":"CDKT_fmnist_I100_sFalse_fFalse_a0.01_b0.1_RFTrue_SSFalse_gmKL_lmNorm2.h5",
+        "CDKTrepfullfKLN_beta_0.1": "CDKT_fmnist_I100_sFalse_fFalse_a0.01_b0.1_RFTrue_SSFalse_gmKL_lmNorm2.h5",
         "CDKTrepfullfKLN_beta_0.5": "CDKT_fmnist_I100_sFalse_fFalse_a0.01_b0.5_RFTrue_SSFalse_gmKL_lmNorm2.h5",
         "CDKTrepfullfKLN_beta_1": "CDKT_fmnist_I100_sFalse_fFalse_a0.01_b1_RFTrue_SSFalse_gmKL_lmNorm2.h5",
         "CDKTrepfullfKLN_alpha_0.01": "CDKT_fmnist_I100_sTrue_fFalse_a0.01_b0.03_RFTrue_SSFalse_gmKL_lmNorm2.h5",
@@ -1855,9 +1896,9 @@ if __name__=='__main__':
         "CDKTrepfullfKLN_beta_0.02": "CDKT_fmnist_I100_sTrue_fFalse_a0.01_b0.02_RFTrue_SSFalse_gmKL_lmNorm2.h5",
         "CDKTrepfullfKLN_beta_0.01": "CDKT_fmnist_I100_sTrue_fFalse_a0.01_b0.01_RFTrue_SSFalse_gmKL_lmNorm2.h5",
         "CDKTrepfullfKLN_beta_0.008": "CDKT_fmnist_I100_sTrue_fFalse_a0.01_b0.008_RFTrue_SSFalse_gmKL_lmNorm2.h5",
-        "fedavg_KSC":"fedavg_fmnist_I100_sTrue_fTrue_a0.01_b0.05_RFFalse_SSFalse_gmKL_lmKL.h5",
-        "FedBD_KSC":"CDKT_fmnist_I100_sTrue_fTrue_a0.08_b0.08_RFFalse_SSFalse_gmKL_lmKL.h5",
-        "FedBD_KSC_Adam":"CDKT_fmnist_I100_sTrue_fTrue_a0.02_b0.08_RFFalse_SSFalse_gmKL_lmKL(Adam).h5",
+        "fedavg_KSC": "fedavg_fmnist_I100_sTrue_fTrue_a0.01_b0.05_RFFalse_SSFalse_gmKL_lmKL.h5",
+        "FedBD_KSC": "CDKT_fmnist_I100_sTrue_fTrue_a0.08_b0.08_RFFalse_SSFalse_gmKL_lmKL.h5",
+        "FedBD_KSC_Adam": "CDKT_fmnist_I100_sTrue_fTrue_a0.02_b0.08_RFFalse_SSFalse_gmKL_lmKL(Adam).h5",
         "CDKTrepsKLN_alpha_0.05": "CDKT_fmnist_I100_sTrue_fFalse_a0.05_b0.06_RFFalse_SSTrue_accFalse_gmKL_lmNorm2.h5",
         "CDKTrepsKLN_alpha_0.1": "CDKT_fmnist_I100_sTrue_fFalse_a0.1_b0.06_RFFalse_SSTrue_accFalse_gmKL_lmNorm2.h5",
         "CDKTrepsKLN_alpha_0.15": "CDKT_fmnist_I100_sTrue_fFalse_a0.15_b0.06_RFFalse_SSTrue_accFalse_gmKL_lmNorm2.h5",
@@ -1894,7 +1935,7 @@ if __name__=='__main__':
         "CDKTrepHsKLNnew": "CDKT_fmnist_I100_sFalse_fFalse_a0.2_b0.06_RFFalse_SSTrue_accFalse_gmKL_lmNorm2.h5"
 
 
-        }
+    }
 
     plot_all_figs()
     plot_alpha_effect_fixed()
@@ -1926,7 +1967,7 @@ if __name__=='__main__':
         "CDKTrepsN": "CDKT_Cifar10_I100_sTrue_fFalse_a0.4_b0.01_RFTrue_SSTrue_gmNorm2_lmNorm2.h5",
         "CDKTrepsJ": "CDKT_Cifar10_I100_sTrue_fTrue_a2_b0.5_RFTrue_SSTrue_gmJSD_lmJSD.h5",
         "CDKTnotransferF": "CDKT_Cifar10_I100_sTrue_fFalse_a0_b0_RFFalse_SSFalse_accFalse_gmKL_lmNorm2.h5",
-        "CDKTnotransferS":"CDKT_Cifar10_I100_sTrue_fFalse_a0_b0_RFFalse_SSTrue_accFalse_gmKL_lmNorm2.h5",
+        "CDKTnotransferS": "CDKT_Cifar10_I100_sTrue_fFalse_a0_b0_RFFalse_SSTrue_accFalse_gmKL_lmNorm2.h5",
         "CDKTrepHfKLNnew": "CDKT_Cifar10_I100_sFalse_fFalse_a0.02_b0.25_RFFalse_SSFalse_accFalse_gmKL_lmNorm2.h5",
         "CDKTrepHsKLNnew": "CDKT_Cifar10_I100_sFalse_fFalse_a0.4_b0.14_RFFalse_SSTrue_accFalse_gmKL_lmNorm2.h5",
         "fedavg_KSC": "fedavg_Cifar10_I100_sTrue_fTrue_a0.02_b0.08_RFFalse_SSFalse_gmKL_lmKL.h5",
@@ -1943,7 +1984,7 @@ if __name__=='__main__':
         "CDKTfullsKLNnew": "CDKT_Cifar10_I100_sTrue_fTrue_a0.6_b0.1_RFTrue_SSTrue_accFalse_gmKL_lmNorm2.h5"
 
 
-        }
+    }
 
     # plot_all_figs()
     plot_fixed_users()
@@ -1988,4 +2029,3 @@ if __name__=='__main__':
     # plot_KSC()
 
     plt.show()
-

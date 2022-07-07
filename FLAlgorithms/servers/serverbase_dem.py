@@ -1,25 +1,20 @@
-import timeit
-
-import torch
-import os
 import numpy as np
-import h5py
 from tqdm import tqdm
 
 from FLAlgorithms.servers.serverbase import Server
 from utils.clustering.hierrachical_clustering import tree_construction, cal_linkage_matrix, weight_clustering, \
     gradient_clustering
-from utils.model_utils import Metrics
 import copy
 from Setting import *
 
+
 class Dem_Server(Server):
-    def __init__(self, experiment, device, dataset,algorithm, model, client_model, batch_size, learning_rate ,beta, L_k,
-                 num_glob_iters, local_epochs, optimizer,num_users, times, args=None):
-        super().__init__(experiment, device, dataset,algorithm, model, client_model, batch_size, learning_rate, beta, L_k, num_glob_iters,
+    def __init__(self, experiment, device, dataset, algorithm, model, client_model, batch_size, learning_rate, beta, L_k,
+                 num_glob_iters, local_epochs, optimizer, num_users, times, args=None):
+        super().__init__(experiment, device, dataset, algorithm, model, client_model, batch_size, learning_rate, beta, L_k, num_glob_iters,
                          local_epochs, optimizer, num_users, times)
 
-        #DEMLEARN PARAMS
+        # DEMLEARN PARAMS
         if(args is not None):
             if (args.mu > 0):
                 args.algorithm += "_Prox"
@@ -43,22 +38,33 @@ class Dem_Server(Server):
         # self.gs_data_train = []  # specialization of group train accuracy
         # self.gs_data_train.append(np.zeros(K_Levels + 1))
 
-        self.cs_data_test = np.zeros((self.num_rounds, self.selected_N_clients))
-        self.cs_data_train = np.zeros((self.num_rounds, self.selected_N_clients))
-        self.cg_data_test = np.zeros((self.num_rounds, self.selected_N_clients))
-        self.cg_data_train = np.zeros((self.num_rounds, self.selected_N_clients))
-        self.gs_level_train = np.zeros((K_Levels + 1, self.num_rounds, 2))  # specialization of group train accuracy
-        self.gs_level_test = np.zeros((K_Levels + 1, self.num_rounds, 2))  # specialization of group test accuracy
-        self.gks_level_train = np.zeros((2, self.num_rounds))  # specialization of group k train accuracy
-        self.gks_level_test = np.zeros((2, self.num_rounds))  # specialization of group k test accuracy
-        self.gg_level_train = np.zeros((K_Levels + 1, self.num_rounds, 2))  # generalization of group train accuracy
-        self.gg_level_test = np.zeros((K_Levels + 1, self.num_rounds, 2))  # generalization of group test accuracy
-        self.gkg_level_train = np.zeros((2, self.num_rounds))  # generalization of group k train accuracy
-        self.gkg_level_test = np.zeros((2, self.num_rounds))  # generalization of group k test accuracy
+        self.cs_data_test = np.zeros(
+            (self.num_rounds, self.selected_N_clients))
+        self.cs_data_train = np.zeros(
+            (self.num_rounds, self.selected_N_clients))
+        self.cg_data_test = np.zeros(
+            (self.num_rounds, self.selected_N_clients))
+        self.cg_data_train = np.zeros(
+            (self.num_rounds, self.selected_N_clients))
+        # specialization of group train accuracy
+        self.gs_level_train = np.zeros((K_Levels + 1, self.num_rounds, 2))
+        # specialization of group test accuracy
+        self.gs_level_test = np.zeros((K_Levels + 1, self.num_rounds, 2))
+        # specialization of group k train accuracy
+        self.gks_level_train = np.zeros((2, self.num_rounds))
+        # specialization of group k test accuracy
+        self.gks_level_test = np.zeros((2, self.num_rounds))
+        # generalization of group train accuracy
+        self.gg_level_train = np.zeros((K_Levels + 1, self.num_rounds, 2))
+        # generalization of group test accuracy
+        self.gg_level_test = np.zeros((K_Levels + 1, self.num_rounds, 2))
+        # generalization of group k train accuracy
+        self.gkg_level_train = np.zeros((2, self.num_rounds))
+        # generalization of group k test accuracy
+        self.gkg_level_test = np.zeros((2, self.num_rounds))
         self.dendo_data = []
         self.dendo_data_round = []
         self.time_complex = []
-
 
     def run_clustering_rep(self):
         p_list = []
@@ -66,16 +72,18 @@ class Dem_Server(Server):
             # print("Weight:", w[1][0])
             # print("Bias:", w[1][1])
             # weight_idx = (K_Layer_idx[0] - 1)*2 #the layer for clustering algorithm e.g.: (3-1) *2 =4 (layer3, index 4, 5)
-            weight_idx = (K_Layer_idx[1] - 1) * 2  # the layer for clustering algorithm e.g.: (3-1) *2 =4 (layer3, index 4, 5) (we can choose 6, 7 as layer 4 to cluster)
+            # the layer for clustering algorithm e.g.: (3-1) *2 =4 (layer3, index 4, 5) (we can choose 6, 7 as layer 4 to cluster)
+            weight_idx = (K_Layer_idx[1] - 1) * 2
             w_cnt = 0
             if (CLUSTER_METHOD == "weight"):
                 c_w = []
                 # for w in range(2):  #using the first layer to cluster only.
                 for w in c.model.parameters():
                     # print("layer element idx:",w_cnt)
-                    if(w_cnt > weight_idx) and (w_cnt < weight_idx+2):  #using one layer for clustering (i.e., layer 3 => last layer of rep)
+                    # using one layer for clustering (i.e., layer 3 => last layer of rep)
+                    if(w_cnt > weight_idx) and (w_cnt < weight_idx+2):
                         c_w.append(w.data.flatten().cpu().numpy())
-                    w_cnt+=1
+                    w_cnt += 1
 
                 # print("Concatenation Len for clustering:",len(np.concatenate( c_w, axis=0)))
                 p_list.append(np.concatenate(c_w, axis=0))
@@ -83,7 +91,8 @@ class Dem_Server(Server):
                 c_g = []
                 # for g in range(2): #using the first layer to cluster only.
                 for g in c.model.parameters():
-                    if(w_cnt > weight_idx) and (w_cnt < weight_idx+2):  #using one layer for clustering (i.e., layer 3 => last layer of rep)
+                    # using one layer for clustering (i.e., layer 3 => last layer of rep)
+                    if(w_cnt > weight_idx) and (w_cnt < weight_idx+2):
                         c_g.append(g.data.flatten().cpu().numpy())
                     w_cnt += 1
                 p_list.append(np.concatenate(c_g, axis=0))
@@ -104,9 +113,9 @@ class Dem_Server(Server):
                 w_cnt = 0
                 # for w in range(2):  #using the first layer to cluster only.
                 for w in c.model.parameters():
-                    if(w_cnt<2):
+                    if(w_cnt < 2):
                         c_w.append(w.data.flatten().cpu().numpy())
-                    w_cnt +=1
+                    w_cnt += 1
                 # print("Concatenation Len for clustering:",len(np.concatenate( c_w, axis=0)))
                 # print(f"Numb of parameters elements in NN {w_cnt}")
                 concat_w = np.concatenate(c_w, axis=0)
@@ -135,7 +144,8 @@ class Dem_Server(Server):
     # copy rep of left to right:
     def copy_rep(self, pre_w, new_w):
         w_cnt = 0
-        head_idx = (self.args.K_Layer_idx[0]-1) * 2 ## 3*2 = 6 (head start from element 6th)
+        # 3*2 = 6 (head start from element 6th)
+        head_idx = (self.args.K_Layer_idx[0]-1) * 2
         for p_w, n_w in zip(pre_w.parameters(), new_w.parameters()):
             if (w_cnt < head_idx):  # load representation
                 n_w.data = p_w.data
@@ -144,7 +154,7 @@ class Dem_Server(Server):
             w_cnt += 1
 
     # copy rep of left to right:
-    def copy_sub_rep(self, pre_w, new_w,rep_start,rep_end):
+    def copy_sub_rep(self, pre_w, new_w, rep_start, rep_end):
         w_cnt = 0
         for p_w, n_w in zip(pre_w.parameters(), new_w.parameters()):
             if (w_cnt >= rep_start) and (w_cnt <= rep_end):  # load representation
@@ -172,11 +182,13 @@ class Dem_Server(Server):
             # print(node.numb_clients)
             # print(self.Weight_dimension)
 
-            rs_ws = copy.deepcopy(self.update_generalized_model(round,childs[0], mode))
+            rs_ws = copy.deepcopy(
+                self.update_generalized_model(round, childs[0], mode))
             for rs_w in rs_ws.parameters():
-                rs_w.data = rs_w.data *childs[0].numb_clients
+                rs_w.data = rs_w.data * childs[0].numb_clients
             for child in childs[1:]:
-                child_weights = self.update_generalized_model(round,child, mode)
+                child_weights = self.update_generalized_model(
+                    round, child, mode)
                 for rs_w, child_w in zip(rs_ws.parameters(), child_weights.parameters()):
                     rs_w.data = rs_w.data + child.numb_clients * child_w.data  # weight
 
@@ -186,8 +198,9 @@ class Dem_Server(Server):
                     # if node.level == 1 and round<10:
                     #     rs_w.data *=1.1
             elif(mode == "soft"):
-                for o_w, rs_w in zip( node.gmodel.parameters(),rs_ws.parameters()):
-                    rs_w.data = (1 - self.args.gamma) * o_w.data + self.args.gamma * rs_w.data / node.numb_clients
+                for o_w, rs_w in zip(node.gmodel.parameters(), rs_ws.parameters()):
+                    rs_w.data = (1 - self.args.gamma) * o_w.data + \
+                        self.args.gamma * rs_w.data / node.numb_clients
 
             # node.gmodel = rs_ws
             node.set_node_parameters(rs_ws)
@@ -205,20 +218,23 @@ class Dem_Server(Server):
             node.numb_clients = len(node.in_clients)
             # print(node.numb_clients)
             # print(self.Weight_dimension)
-            rs_ws = copy.deepcopy(self.update_generalized_model_re(round,childs[0], mode))
+            rs_ws = copy.deepcopy(
+                self.update_generalized_model_re(round, childs[0], mode))
             for rs_w in rs_ws.parameters():
-                rs_w.data = rs_w.data *childs[0].numb_clients
+                rs_w.data = rs_w.data * childs[0].numb_clients
             for child in childs[1:]:
-                child_weights = self.update_generalized_model_re(round,child, mode)
+                child_weights = self.update_generalized_model_re(
+                    round, child, mode)
                 for rs_w, child_w in zip(rs_ws.parameters(), child_weights.parameters()):
                     rs_w.data = rs_w.data + child.numb_clients * child_w.data  # weight
 
-            if(node.parent=="Empty"):
+            if(node.parent == "Empty"):
                 for rs_w in rs_ws.parameters():
                     rs_w.data = rs_w.data / node.numb_clients
             else:
-                for p_w, rs_w in zip( node.parent.gmodel.parameters(),rs_ws.parameters()):
-                    rs_w.data = (p_w.data + rs_w.data / node.numb_clients) *0.5
+                for p_w, rs_w in zip(node.parent.gmodel.parameters(), rs_ws.parameters()):
+                    rs_w.data = (p_w.data + rs_w.data /
+                                 node.numb_clients) * 0.5
 
             # node.gmodel = rs_ws
             node.set_node_parameters(rs_ws)
@@ -229,7 +245,7 @@ class Dem_Server(Server):
 
     def update_generalized_model_downward(self, round, node, mode="hard"):
         # print("Node id:", node._id, node._type)
-        mu_factor=0.5
+        mu_factor = 0.5
         childs = node.childs
         if childs:
             for child in childs[0:]:
@@ -237,32 +253,34 @@ class Dem_Server(Server):
                     if (mode == "hard"):
                         c_w.data = (1-mu_factor)*c_w.data + n_w.data*mu_factor
                     elif (mode == "soft"):
-                        c_w.data = (1 - self.args.gamma) * c_w.data + self.args.gamma * (c_w.data + n_w.data)*0.5
+                        c_w.data = (1 - self.args.gamma) * c_w.data + \
+                            self.args.gamma * (c_w.data + n_w.data)*0.5
 
                     # if (node.level == 2) and round<10:
                     #     c_w.data *=1.1
-                self.update_generalized_model_downward(round,child,mode)
+                self.update_generalized_model_downward(round, child, mode)
 
     def update_generalized_model_recursive2(self, round, node, mode="hard"):
-        self.update_generalized_model(round,node,mode) #bottom to top
-        self.update_generalized_model_downward(round,node,mode) #top to bottom
+        self.update_generalized_model(round, node, mode)  # bottom to top
+        self.update_generalized_model_downward(
+            round, node, mode)  # top to bottom
 
     def update_generalized_model_recursive1(self, round, node, mode="hard"):
-        if(mode=="hard"):
-            self.update_generalized_model_recursive2(round,node, mode)
+        if(mode == "hard"):
+            self.update_generalized_model_recursive2(round, node, mode)
         else:
-            self.update_generalized_model_re(round,node,mode) #bottom to top in recursive way
-
+            # bottom to top in recursive way
+            self.update_generalized_model_re(round, node, mode)
 
     def get_hierrachical_params(self, client):
         gen_weights, nf = client.get_hierarchical_info1()
         # print("Normalized term:", nf)
         for w in gen_weights.parameters():
-            w.data = w.data /nf
+            w.data = w.data / nf
 
         # total_corrects, ns = self.gc_test(gen_weights)
         # print(f"G_GEN from download model: {total_corrects / ns}")
-        return gen_weights.parameters() # normalized version
+        return gen_weights.parameters()  # normalized version
 
     def get_hierrachical_gen_model(self, client):
         # gen_weights, nf = client.get_hierarchical_info1()
@@ -279,8 +297,7 @@ class Dem_Server(Server):
     def get_hierrachical_representation(self, client):
         return client.get_hierarchical_rep().parameters()
 
-        ## model shape type: tuple ((weight, bias),(weight, bias))
-
+        # model shape type: tuple ((weight, bias),(weight, bias))
 
     def hierrachical_clustering(self, i):
         # if(self.Hierrchical_Method == "Weight"):
@@ -314,12 +331,14 @@ class Dem_Server(Server):
         # print("Number of agents Group 1 in level K-1:", root.childs[0].childs[0].count_clients(),
         #       root.childs[0].childs[1].count_clients())
 
-    def g_train_error_and_loss(self, gr, mode="spe"):  # mode spe: specialization, gen: generalization
+    # mode spe: specialization, gen: generalization
+    def g_train_error_and_loss(self, gr, mode="spe"):
         num_samples = []
         tot_correct = []
         losses = []
 
-        self.client_model.set_params(gr.gmodel)  # update parameter of group to tf.graph
+        # update parameter of group to tf.graph
+        self.client_model.set_params(gr.gmodel)
         if (mode == "spe"):
             validating_clients = gr.in_clients
         elif (mode == "gen"):
@@ -348,7 +367,8 @@ class Dem_Server(Server):
 
         return np.sum(tot_correct), np.sum(tot_correct), np.sum(num_samples)
 
-    def c_train_error_and_loss(self, i, mode="spe"):  # mode spe: specialization, gen: generalization
+    # mode spe: specialization, gen: generalization
+    def c_train_error_and_loss(self, i, mode="spe"):
         num_samples = []
         tot_correct = []
         losses = []
@@ -358,7 +378,8 @@ class Dem_Server(Server):
             if (mode == "spe"):
                 ct, cl, ns = c.train_error_and_loss()
             elif (mode == "gen"):
-                ct, cl, ns = self.gc_train_error_and_loss()  # Test client as testing group approach in gen mode
+                # Test client as testing group approach in gen mode
+                ct, cl, ns = self.gc_train_error_and_loss()
 
             tot_correct.append(ct * 1.0)
             num_samples.append(ns)
@@ -386,9 +407,11 @@ class Dem_Server(Server):
 
         # print("Clients in group:",self.gr.in_clients)
         if (mode == "spe"):
-            validating_clients = gr.in_clients  # Evaluate Group-SPE (clients belong to this group)
+            # Evaluate Group-SPE (clients belong to this group)
+            validating_clients = gr.in_clients
         elif (mode == "gen"):
-            validating_clients = self.users     # Evaluate Group-GEN (all clients data)
+            # Evaluate Group-GEN (all clients data)
+            validating_clients = self.users
 
         for c in validating_clients:
             # gr_test_model = copy.deepcopy(gr.gmodel)
@@ -404,7 +427,7 @@ class Dem_Server(Server):
         return ids, groups, num_samples, tot_correct
 
     # C-GEN for Testing data
-    def gc_test(self,c_model):
+    def gc_test(self, c_model):
         num_samples = []
         tot_correct = []
 
@@ -414,10 +437,13 @@ class Dem_Server(Server):
             num_samples.append(ns)
 
         return np.sum(tot_correct), np.sum(num_samples)
-    def evaluating_global_CDKT(self,i):
-        ct, ns = self.gc_test(self.model)  # evaluate global model on all client dataset
+
+    def evaluating_global_CDKT(self, i):
+        # evaluate global model on all client dataset
+        ct, ns = self.gc_test(self.model)
         tqdm.write('At round {} global testing accuracy: {}'.format(i, ct / ns))
         self.rs_glob_acc.append(ct / ns)
+
     def c_test(self, i, mode="spe"):  # mode spe: specialization, gen: generalization
         '''tests self.latest_model on given clients
         '''
@@ -435,9 +461,11 @@ class Dem_Server(Server):
                 # c_test_model = copy.deepcopy(c.model)
                 # ct, ns = self.gc_test(c_test_model)  # Test client as testing group approach in gen mode
                 if Same_model:
-                    ct, ns = self.gc_test(c.model)  # Test client as testing group approach in gen mode
+                    # Test client as testing group approach in gen mode
+                    ct, ns = self.gc_test(c.model)
                 else:
-                    ct, ns = self.gc_test(c.client_model)  # Test client as testing group approach in gen mode
+                    # Test client as testing group approach in gen mode
+                    ct, ns = self.gc_test(c.client_model)
             tot_correct.append(ct * 1.0)
             num_samples.append(ns)
             clients_acc.append(ct / ns)
@@ -453,23 +481,28 @@ class Dem_Server(Server):
         groups = [c.group for c in self.users]
         return ids, groups, num_samples, tot_correct
 
-    def evaluating_clients(self, i, mode="spe"):  # mode spe: specialization, gen: generalization
-        stats = self.c_test(i, mode)  #evaluate C-GEN and C-SPE on testing data
+    # mode spe: specialization, gen: generalization
+    def evaluating_clients(self, i, mode="spe"):
+        # evaluate C-GEN and C-SPE on testing data
+        stats = self.c_test(i, mode)
         if mode == "spe":
-            stats_train = self.c_train_error_and_loss(i, mode) #evaluate C-SPE on training data
+            stats_train = self.c_train_error_and_loss(
+                i, mode)  # evaluate C-SPE on training data
         elif (mode == "gen"):
-            stats_train = []  ### no need to evaluate C-GEN on training data
+            stats_train = []  # no need to evaluate C-GEN on training data
 
         test_acr = np.sum(stats[3]) * 1.0 / np.sum(stats[2])
         tqdm.write('At round {} AvgC. testing accuracy: {}'.format(i, test_acr))
         if mode == "spe":
             train_acr = np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])
-            tqdm.write('At round {} AvgC. training accuracy: {}'.format(i, train_acr))
+            tqdm.write(
+                'At round {} AvgC. training accuracy: {}'.format(i, train_acr))
         elif (mode == "gen"):
             train_acr = []
         return test_acr, train_acr
 
-    def evaluating_groups(self, gr, i, mode="spe"):  # mode spe: specialization, gen: generalization
+    # mode spe: specialization, gen: generalization
+    def evaluating_groups(self, gr, i, mode="spe"):
         if (gr.parent == "Empty"):
             self.test_accs = np.zeros(K_Levels + 1)
             self.train_accs = np.zeros(K_Levels + 1)
@@ -480,7 +513,8 @@ class Dem_Server(Server):
 
         if (mode == "spe"):  # Specialization results
             self.gs_level_train[gr.level - 1, i, 1] += gr.numb_clients
-            self.gs_level_test[gr.level - 1, i, 0] += test_acc * gr.numb_clients
+            self.gs_level_test[gr.level - 1, i,
+                               0] += test_acc * gr.numb_clients
             self.gs_level_test[gr.level - 1, i, 1] += gr.numb_clients
 
             if (gr._id == self.TreeRoot.childs[0]._id):
@@ -493,7 +527,8 @@ class Dem_Server(Server):
         elif (mode == "gen"):  # Generalization results
             # self.gg_level_train[gr.level - 1, i, 0] += train_acc * gr.numb_clients
             self.gg_level_train[gr.level - 1, i, 1] += gr.numb_clients
-            self.gg_level_test[gr.level - 1, i, 0] += test_acc * gr.numb_clients
+            self.gg_level_test[gr.level - 1, i,
+                               0] += test_acc * gr.numb_clients
             self.gg_level_test[gr.level - 1, i, 1] += gr.numb_clients
             if (gr._id == self.TreeRoot.childs[0]._id):
                 # self.gkg_level_train[0,i] = train_acc

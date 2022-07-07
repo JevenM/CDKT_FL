@@ -2,9 +2,8 @@ I/MNIST DATASET 60 rounds
 1/Fixed users
 
 +Rep only 
--Global metric:norm2, Local metric: norm 2. Alpha = beta =0.04, local lr = global lr =0.03. Performance: Global: 0.85, gen:0.75, spec:97 
--Global metric = KL , local metric = norm2. Alpha = beta =0.05, local lr = global lr =0.03. Perf:
-Global 0.844, gen: 0.82, spec 0.95
+-Global metric: norm2, Local metric: norm2. Alpha = beta =0.04, local lr = global lr =0.03. Performance: Global: 0.85, gen:0.75, spec:97 
+-Global metric: KL, local metric: norm2, Alpha = beta: 0.05, local lr = global lr =0.03. Perf: Global: 0.844, gen: 0.82, spec: 0.95
 -Global metric = norm 2, local metric = KL. alpha = 0.2, beta=0.04, local lr = 0.06, global lr =0.02. Perf:
 global:0.82, gen = 0.786,spec =0.95
 -Global metric = local metric = KL. alpha =0.3,beta =0.03, local lr = global lr =0.03.

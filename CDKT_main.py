@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+# import comet_ml at the top of your file
 from comet_ml import Experiment
 from utils.options import args_parser
 from FLAlgorithms.servers.serveravg import FedAvg
@@ -10,11 +11,13 @@ from FLAlgorithms.servers.serverlocal import FedLocal
 from FLAlgorithms.servers.serverglobal import FedGlobal
 from FLAlgorithms.servers.serverCDKT import CDKT
 from utils.model_utils import read_data
-from FLAlgorithms.trainmodel.models import DNN, DNN2, CNNCifar, CNNCifar_Server_3layer, Mclr_Logistic, Net_DemAI, Net_DemAI_Client
+from FLAlgorithms.trainmodel.models import DNN, DNN2, CNNCifar, CNNCifar_Server, CNNCifar_Server_3layer, Mclr_Logistic, Net_DemAI, Net_DemAI_Client
 import torch
+
+from utils.plot_utils import average_data
 torch.manual_seed(0)
 
-# import comet_ml at the top of your file
+
 # python CDKT_main.py --dataset Mnist --model cnn --learning_rate 0.03 --num_global_iters 200  --algorithm FedAvg --times 1 --subusers 0.1
 # python CDKT_main.py --dataset Mnist --model cnn --learning_rate 0.03 --num_global_iters 200  --algorithm --times 1 --subusers 0.1
 
@@ -23,9 +26,8 @@ torch.manual_seed(0)
 
 # Create an experiment with your api key:
 def main(experiment, dataset, algorithm, model,  client_model, batch_size, learning_rate, beta, L_k, num_glob_iters,
-         local_epochs, optimizer, numusers, K, personal_learning_rate, times, commet, gpu, cutoff, args):
+         local_epochs, optimizer, numusers, K, personal_learning_rate, times, comet, gpu, cutoff, args):
 
-    # print torch.device()
     # Get device status: Check GPU or CPU
     device = torch.device("cuda:{}".format(
         gpu) if torch.cuda.is_available() and gpu != -1 else "cpu")
@@ -67,8 +69,8 @@ def main(experiment, dataset, algorithm, model,  client_model, batch_size, learn
             if (dataset == "EMNIST"):
                 model = Net_DemAI().to(device), model
             elif (dataset == "Cifar10"):
-                model = CNNCifar_Server_3layer(10).to(device), model
-                # model = CNNCifar_Server(10).to(device), model
+                # model = CNNCifar_Server_3layer(10).to(device), model
+                model = CNNCifar_Server(10).to(device), model
                 # server_model = CNNCifar_Server(10).to(device)
                 client_model = CNNCifar(10).to(device)
             elif (dataset == "Cifar100"):
@@ -82,65 +84,66 @@ def main(experiment, dataset, algorithm, model,  client_model, batch_size, learn
                 client_model = Net_DemAI_Client().to(device)
 
         # select algorithm
-
         if(algorithm == "FedAvg"):
-            if(commet):
+            if(comet):
                 experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(
-                    learning_rate) + "_" + str(num_glob_iters) + "_" + str(local_epochs) + "_" + str(numusers))
+                    learning_rate) + "_" + str(num_glob_iters) + "_" + str(local_epochs) + "_" + str(numusers) + "_" + str(args.total_users))
             server = FedAvg(experiment, device, data, algorithm, model, client_model, batch_size,
                             learning_rate, beta, L_k, num_glob_iters, local_epochs, optimizer, numusers, i, cutoff, args)
 
         elif(algorithm == "PerAvg"):
-            if(commet):
+            if(comet):
                 experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(
-                    personal_learning_rate) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_" + str(local_epochs) + "_" + str(numusers))
+                    personal_learning_rate) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_" + str(local_epochs) + "_" + str(numusers) + "_" + str(args.total_users))
             server = PerAvg(experiment, device, data, algorithm, model, batch_size, learning_rate,
                             beta, L_k, num_glob_iters, local_epochs, optimizer, numusers, i, cutoff)
 
         elif (algorithm == "CDKT"):
-            if (commet):
+            if (comet):
                 experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(
-                    learning_rate) + "_" + str(num_glob_iters) + "_" + str(local_epochs) + "_" + str(numusers))
+                    learning_rate) + "_" + str(num_glob_iters) + "_" + str(local_epochs) + "_" + str(numusers) + "_" + str(args.total_users))
             server = CDKT(experiment, device, data,  algorithm, model, client_model, batch_size,
                           learning_rate, beta, L_k, num_glob_iters, local_epochs, optimizer, numusers, i, cutoff, args)
 
         elif(algorithm == "FedU"):
-            if(commet):
+            if(comet):
                 experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(
-                    learning_rate) + "_" + str(L_k) + "L_K" + "_" + str(num_glob_iters) + "_" + str(local_epochs) + "_" + str(numusers))
+                    learning_rate) + "_" + str(L_k) + "L_K" + "_" + str(num_glob_iters) + "_" + str(local_epochs) + "_" + str(numusers) + "_" + str(args.total_users))
             server = FedU(experiment, device, data, algorithm, model, batch_size, learning_rate,
                           beta, L_k, num_glob_iters, local_epochs, optimizer, numusers, K, i, cutoff)
 
         elif(algorithm == "pFedMe"):
-            if(commet):
+            if(comet):
                 experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(
-                    personal_learning_rate) + "_" + str(num_glob_iters) + "_" + str(local_epochs) + "_" + str(numusers))
+                    personal_learning_rate) + "_" + str(num_glob_iters) + "_" + str(local_epochs) + "_" + str(numusers) + "_" + str(args.total_users))
             server = pFedMe(experiment, device, data, algorithm, model, batch_size, learning_rate, beta,
                             L_k, num_glob_iters, local_epochs, optimizer, numusers, K, personal_learning_rate, i, cutoff)
 
         elif(algorithm == "Local"):
-            if(commet):
+            if(comet):
                 experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(
-                    learning_rate) + "_" + str(L_k) + "_" + str(num_glob_iters) + "_" + str(local_epochs) + "_" + str(numusers))
+                    learning_rate) + "_" + str(L_k) + "_" + str(num_glob_iters) + "_" + str(local_epochs) + "_" + str(numusers) + "_" + str(args.total_users))
             server = FedLocal(experiment, device, data, algorithm, model, batch_size, learning_rate,
                               beta, L_k, num_glob_iters, local_epochs, optimizer, numusers, i, cutoff)
 
         elif(algorithm == "Global"):
-            if(commet):
+            if(comet):
                 experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(
-                    learning_rate) + "_" + str(L_k) + "_" + str(num_glob_iters) + "_" + str(local_epochs) + "_" + str(numusers))
+                    learning_rate) + "_" + str(L_k) + "_" + str(num_glob_iters) + "_" + str(local_epochs) + "_" + str(numusers) + "_" + str(args.total_users))
             server = FedGlobal(experiment, device, data, algorithm, model, batch_size, learning_rate,
                                beta, L_k, num_glob_iters, local_epochs, optimizer, numusers, i, cutoff)
         else:
             print("Algorithm is invalid")
             return
-
+    if comet:
+        with experiment.train():
+            server.train()
+    else:
         server.train()
-        # server.test()
 
-    # average_data(num_users=numusers, loc_ep1=local_epochs, Numb_Glob_Iters=num_glob_iters, lamb=L_k,learning_rate=learning_rate,
-    # beta = beta, algorithms=algorithm, batch_size=batch_size, dataset=dataset, k = K, personal_learning_rate = personal_learning_rate,
-    # times = times, cutoff = cutoff)
+    # average_data(num_users=numusers, loc_ep1=local_epochs, Numb_Glob_Iters=num_glob_iters, lamb=L_k, learning_rate=learning_rate,
+    #              beta=beta, algorithms=algorithm, batch_size=batch_size, dataset=dataset, k=K, personal_learning_rate=personal_learning_rate,
+    #              times=times, cutoff=cutoff)
 
 
 if __name__ == "__main__":
@@ -151,6 +154,7 @@ if __name__ == "__main__":
     print("Batch size: {}".format(args.batch_size))
     print("Learing rate       : {}".format(args.learning_rate))
     print("Average Moving       : {}".format(args.beta))
+    print("num of users       : {}".format(args.total_users))
     print("Subset of users      : {}".format(args.subusers))
     print("Number of global rounds       : {}".format(args.num_global_iters))
     print("Number of local rounds       : {}".format(args.local_epochs))
@@ -160,12 +164,12 @@ if __name__ == "__main__":
     print("Client Model       : {}".format(args.client_model))
     print("=" * 80)
 
-    if(args.commet):
+    if(args.comet):
         # Create an experiment with your api key:
         experiment = Experiment(
-            api_key="VtHmmkcG2ngy1isOwjkm5sHhP",
-            project_name="multitask-for-test",
-            workspace="federated-learning-exp",
+            api_key="eOnZ4ncwzyZMH3k7s7YzEGIQi",
+            project_name="test-project",
+            workspace="jevenm",
         )
 
         hyper_params = {
@@ -182,6 +186,7 @@ if __name__ == "__main__":
             "local_epochs": args.local_epochs,
             "optimizer": args.optimizer,
             "numusers": args.subusers,
+            "totalusers": args.total_users,
             "K": args.K,
             "personal_learning_rate": args.personal_learning_rate,
             "times": args.times,
@@ -211,7 +216,7 @@ if __name__ == "__main__":
         K=args.K,
         personal_learning_rate=args.personal_learning_rate,
         times=args.times,
-        commet=args.commet,
+        comet=args.comet,
         gpu=args.gpu,
         cutoff=args.cutoff,
         args=args

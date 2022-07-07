@@ -16,12 +16,13 @@ import numpy as np
 
 # Implementation for pFedMe Server
 
+
 class DemLearn(Dem_Server):
     def __init__(self, experiment, device, dataset, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters,
                  local_epochs, optimizer, num_users, K, personal_learning_rate, times, cutoff, args):
         # if (args.mu > 0): args.algorithm += "_Prox"
 
-        super().__init__(experiment, device, dataset,algorithm, model[0], batch_size, learning_rate, beta, L_k, num_glob_iters,
+        super().__init__(experiment, device, dataset, algorithm, model[0], batch_size, learning_rate, beta, L_k, num_glob_iters,
                          local_epochs, optimizer, num_users, times, args)
         # Initialize data for all  users
         self.K = K
@@ -34,17 +35,19 @@ class DemLearn(Dem_Server):
             randomList = self.get_partion(self.total_users)
 
         for i in range(self.total_users):
-            id, train , test = read_user_data(i, dataset[0], dataset[1])
+            id, train, test = read_user_data(i, dataset[0], dataset[1])
             print("User ", id, ": Numb of Training data", len(train))
             if(self.sub_data):
                 print(">>> Cutoff >>>>")
                 if(i in randomList):
                     train, test = self.get_data(train, test)
-                    
-            user = UserDemLearn(device, id, train, test, model, batch_size, learning_rate, beta, L_k, local_epochs, optimizer, K, personal_learning_rate, args)
+
+            user = UserDemLearn(device, id, train, test, model, batch_size, learning_rate,
+                                beta, L_k, local_epochs, optimizer, K, personal_learning_rate, args)
             self.users.append(user)
             self.total_train_samples += user.train_samples
-        print("Fraction number of users / total users:",num_users, " / " ,self.total_users)
+        print("Fraction number of users / total users:",
+              num_users, " / ", self.total_users)
         print(f"Finished creating {self.args.algorithm} server.")
 
     def send_grads(self):
@@ -59,50 +62,54 @@ class DemLearn(Dem_Server):
             user.set_grads(grads)
 
     def train(self):
-        mu_t=self.args.mu
+        mu_t = self.args.mu
         for i in range(self.num_glob_iters):
             # ============= Test each client =============
-            tqdm.write('============= Test Client Models - Specialization ============= ')
+            tqdm.write(
+                '============= Test Client Models - Specialization ============= ')
             stest_acu, strain_acc = self.evaluating_clients(i, mode="spe")
             self.cs_avg_data_test.append(stest_acu)
             self.cs_avg_data_train.append(strain_acc)
-            tqdm.write('============= Test Client Models - Generalization ============= ')
+            tqdm.write(
+                '============= Test Client Models - Generalization ============= ')
             gtest_acu, gtrain_acc = self.evaluating_clients(i, mode="gen")
             self.cg_avg_data_test.append(gtest_acu)
             self.cg_avg_data_train.append(gtrain_acc)
 
             # ============= Test root =============
             if (i > 0):
-                tqdm.write('============= Test Group Models - Specialization ============= ')
+                tqdm.write(
+                    '============= Test Group Models - Specialization ============= ')
                 self.evaluating_groups(self.TreeRoot, i, mode="spe")
                 # gs_test = self.test_accs / self.count_grs
                 # gs_train = self.train_accs / self.count_grs
                 # self.gs_data_test.append(gs_test)
                 # self.gs_data_train.append(gs_train)
                 self.gs_level_train[:, i, 0] = self.gs_level_train[:, i, 0] / self.gs_level_train[:, i,
-                                                                              1]  # averaging by level and numb of clients
+                                                                                                  1]  # averaging by level and numb of clients
                 self.gs_level_test[:, i, 0] = self.gs_level_test[:, i, 0] / self.gs_level_test[:, i,
-                                                                            1]  # averaging by level and numb of clients
-                print("AvgG. Testing performance for each level:", self.gs_level_test[:, i, 0])
+                                                                                               1]  # averaging by level and numb of clients
+                print("AvgG. Testing performance for each level:",
+                      self.gs_level_test[:, i, 0])
                 # print("AvgG. Training performance for each level:", self.gs_level_train[:,i,0])
-                tqdm.write('============= Test Group Models - Generalization ============= ')
+                tqdm.write(
+                    '============= Test Group Models - Generalization ============= ')
                 self.evaluating_groups(self.TreeRoot, i, mode="gen")
                 # gg_test = self.test_accs / self.count_grs
                 # gg_train = self.train_accs / self.count_grs
                 # self.gg_data_test.append(gg_test)
                 # self.gg_data_train.append(gg_train)
                 self.gg_level_train[:, i, 0] = self.gg_level_train[:, i, 0] / self.gg_level_train[:, i,
-                                                                              1]  # averaging by level and numb of clients
+                                                                                                  1]  # averaging by level and numb of clients
                 self.gg_level_test[:, i, 0] = self.gg_level_test[:, i, 0] / self.gg_level_test[:, i,
-                                                                            1]  # averaging by level and numb of clients
-                print("AvgG. Testing performance for each level:", self.gg_level_test[:, i, 0])
+                                                                                               1]  # averaging by level and numb of clients
+                print("AvgG. Testing performance for each level:",
+                      self.gg_level_test[:, i, 0])
                 # print("AvgG. Training performance for each level:", self.gg_level_train[:,i,0])
 
-
-
             if(self.experiment):
-                self.experiment.set_epoch( i + 1)
-            print("-------------Round number: ",i, " -------------")
+                self.experiment.set_epoch(i + 1)
+            print("-------------Round number: ", i, " -------------")
             # # send all parameter for users
             # self.send_parameters()
 
@@ -112,11 +119,11 @@ class DemLearn(Dem_Server):
             # self.evaluate()
 
             # do update for all users not only selected users
-            #for user in self.users:
+            # for user in self.users:
             #    user.train(self.local_epochs) #* user.train_sample
 
             # mu_t = max(mu_t*0.8,0.1) #### Mnist dataset
-            mu_t = min(mu_t * 1.1, 5)  #### Mnist dataset
+            mu_t = min(mu_t * 1.1, 5)  # Mnist dataset
 
             for user in self.users:
                 # print(f"--- USER {user.id} ---")
@@ -124,7 +131,7 @@ class DemLearn(Dem_Server):
                 # STEP 1: Initialize the local model of client based on hierarchical GK
                 if (i == 0):
                     self.initialize_model(user)
-                    user.train_prox(self.local_epochs,mu_t=self.args.mu)
+                    user.train_prox(self.local_epochs, mu_t=self.args.mu)
                     # user.train(self.local_epochs)
                 else:
                     # # total_corrects, ns = user.test_gen(user.model)
@@ -142,7 +149,6 @@ class DemLearn(Dem_Server):
                     # # user.gmodel = user.model
                     # self.initialize_model(user, user.model)
 
-
                     # g_weights = self.get_hierrachical_gen_model(user)  # parameters of generalized models
                     # user.train_prox(self.local_epochs, g_weights)
                     # global_weights = user.get_global_model()
@@ -152,11 +158,11 @@ class DemLearn(Dem_Server):
                     ### Best Performance near FedAvg ###
                     parent_weights = user.get_parent_model()
                     self.initialize_model(user, parent_weights)
-                    user.train_prox(self.local_epochs, mu_t=0, gen_ws=(parent_weights, 1.))
+                    user.train_prox(self.local_epochs, mu_t=0,
+                                    gen_ws=(parent_weights, 1.))
                     # user.train_prox(self.local_epochs, mu_t=0.5, gen_ws=(parent_weights, 1.))
                     # user.train_distill(self.local_epochs, mu_t=0, gen_model=global_weights)
                     # user.train_prox_distill(self.local_epochs, mu_t=0.5, gen_model=parent_weights)
-
 
                     ###
                     # g_weights,nf= self.get_hierrachical_gen_model(user)  # parameters of generalized models
@@ -194,12 +200,12 @@ class DemLearn(Dem_Server):
                 # print(f"C_GEN3 after local train: {total_corrects / ns}")
 
             if (self.args.DECAY == True):
-                if(DATASET=="mnist"):
-                    self.beta = max(self.beta *0.7,0.001) #### Mnist dataset
+                if(DATASET == "mnist"):
+                    self.beta = max(self.beta * 0.7, 0.001)  # Mnist dataset
                 elif(DATASET == "fmnist"):
-                    self.beta = max(self.beta * 0.5, 0.0005)  #### Fmnist dataset
+                    self.beta = max(self.beta * 0.5, 0.0005)  # Fmnist dataset
                 elif(DATASET == "femnist"):
-                    self.beta = max(self.beta * 0.5, 0.0005)  #### FEmnist dataset
+                    self.beta = max(self.beta * 0.5, 0.0005)  # FEmnist dataset
                 # self.gamma = max(self.gamma - 0.25, 0.02)  # period = 2  0.96 vs 0.9437 after 31 : 0.25, 0.02 DemAVG
                 # self.gamma = max(self.gamma - 0.1, 0.6) # 0.25, 0.02:  0.987 vs 0.859 after 31 DemProx vs fixed 0.6 =>0.985 and 0.89
 
@@ -211,7 +217,7 @@ class DemLearn(Dem_Server):
                 print("DEM-AI --------->>>>> Hard Update generalized model")
                 # self.update_generalized_model(i,self.TreeRoot)  # hard update
                 # self.update_generalized_model_recursive1(i,self.TreeRoot)
-                self.update_generalized_model_recursive2(i,self.TreeRoot)
+                self.update_generalized_model_recursive2(i, self.TreeRoot)
                 # print("Root Model:", np.sum(self.TreeRoot.gmodel[0]),np.sum(self.TreeRoot.gmodel[1]))
             else:
                 # update model
@@ -219,9 +225,9 @@ class DemLearn(Dem_Server):
                 print("DEM-AI --------->>>>> Soft Update generalized model")
                 # self.update_generalized_model(i,self.TreeRoot, mode="soft")  # soft update
                 # self.update_generalized_model_recursive1(i,self.TreeRoot, mode="soft")
-                self.update_generalized_model_recursive2(i,self.TreeRoot, mode="soft")
+                self.update_generalized_model_recursive2(
+                    i, self.TreeRoot, mode="soft")
                 # print("Root Model:", np.sum(self.TreeRoot.gmodel[0]),np.sum(self.TreeRoot.gmodel[1]))
-
 
             # # choose several users to send back upated model to server
             # # self.personalized_evaluate()
@@ -233,7 +239,7 @@ class DemLearn(Dem_Server):
             # self.evaluate_personalized_model()
             # #self.aggregate_parameters()
             # self.persionalized_aggregate_parameters()
-            
+
         # self.save_results()
         # self.save_model()
         self.save_results_dem()
@@ -242,21 +248,20 @@ class DemLearn(Dem_Server):
 
         # plt.plot(np.arange(1,len(self.time_complex)+1),self.time_complex)
         # plt.show()
-        root_train = np.asarray(self.gs_level_train)[K_Levels,:, 0]
-        root_test = np.asarray(self.gs_level_test)[K_Levels,:, 0]
+        root_train = np.asarray(self.gs_level_train)[K_Levels, :, 0]
+        root_test = np.asarray(self.gs_level_test)[K_Levels, :, 0]
 
-        write_file(RS_PATH+self.args.algorithm+"_"+ complex_file_path, time_complex=self.time_complex)
+        write_file(RS_PATH+self.args.algorithm+"_" +
+                   complex_file_path, time_complex=self.time_complex)
         print('Saving complexity...\nOK!')
         write_file(file_name=rs_file_path, root_test=root_test, root_train=root_train,
                    cs_avg_data_test=self.cs_avg_data_test, cs_avg_data_train=self.cs_avg_data_train,
                    cg_avg_data_test=self.cg_avg_data_test, cg_avg_data_train=self.cg_avg_data_train,
                    cs_data_test=self.cs_data_test, cs_data_train=self.cs_data_train, cg_data_test=self.cg_data_test,
                    cg_data_train=self.cg_data_train, gs_level_train=self.gs_level_train, gs_level_test=self.gs_level_test,
-                   gg_level_train = self.gg_level_train, gg_level_test = self.gg_level_test,
-                   gks_level_train =self.gks_level_train , gks_level_test=self.gks_level_test,
+                   gg_level_train=self.gg_level_train, gg_level_test=self.gg_level_test,
+                   gks_level_train=self.gks_level_train, gks_level_test=self.gks_level_test,
                    gkg_level_train=self.gkg_level_train, gkg_level_test=self.gkg_level_test,
-                   dendo_data=self.dendo_data, dendo_data_round=self.dendo_data_round,  #Dendrogram data
-                   N_clients=[N_clients], TREE_UPDATE_PERIOD=[TREE_UPDATE_PERIOD])      #Setting
+                   dendo_data=self.dendo_data, dendo_data_round=self.dendo_data_round,  # Dendrogram data
+                   N_clients=[N_clients], TREE_UPDATE_PERIOD=[TREE_UPDATE_PERIOD])  # Setting
         plot_from_file()
-    
-  

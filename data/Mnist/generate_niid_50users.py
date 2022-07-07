@@ -12,13 +12,16 @@ np.random.seed(1)
 NUM_USERS = 50
 NUM_LABELS = 2
 # Setup directory for train/test data
-train_path = './data/train/mnist_train.json'
-test_path = './data/test/mnist_test.json'
-public_path= './data/public/public_data.json'
+train_path = './data/Mnist/train/mnist_train.json'
+test_path = './data/Mnist/test/mnist_test.json'
+public_path = './data/Mnist/public/public_data.json'
 dir_path = os.path.dirname(train_path)
 if not os.path.exists(dir_path):
     os.makedirs(dir_path)
 dir_path = os.path.dirname(test_path)
+if not os.path.exists(dir_path):
+    os.makedirs(dir_path)
+dir_path = os.path.dirname(public_path)
 if not os.path.exists(dir_path):
     os.makedirs(dir_path)
 
@@ -26,7 +29,8 @@ if not os.path.exists(dir_path):
 # mnist = fetch_mldata('MNIST original', data_home='./data')
 # mnist = fetch_openml('MNIST original', data_home='./data')
 mnist = fetch_openml('mnist_784', version=1, cache=True)
-mnist.target = mnist.target.astype(np.int8)  # fetch_openml() returns targets as strings
+# fetch_openml() returns targets as strings
+mnist.target = mnist.target.astype(np.int8)
 
 mu = np.mean(mnist.data.astype(np.float32), 0)
 sigma = np.std(mnist.data.astype(np.float32), 0)
@@ -34,7 +38,7 @@ mnist.data = (mnist.data.astype(np.float32) - mu)/(sigma+0.001)
 mnist_data = []
 public_mnist_data = []
 
-labels=np.zeros((10,), dtype=int)
+labels = np.zeros((10,), dtype=int)
 
 # print(mnist.data)
 # for k in mnist.target:
@@ -45,11 +49,12 @@ labels=np.zeros((10,), dtype=int)
 
 for i in trange(10):
 
-    idx = (mnist.target)==i
+    idx = (mnist.target) == i
 
     # mnist_data.append(mnist.data[idx])
     mnist_data.append(mnist.data[idx][:int(len(mnist.data[idx])*0.995)])
-    public_mnist_data.append(mnist.data[idx][int(len(mnist.data[idx]) * 0.995):])
+    public_mnist_data.append(
+        mnist.data[idx][int(len(mnist.data[idx]) * 0.995):])
 
 
 #
@@ -94,7 +99,7 @@ props = np.array([[[len(v)-100]] for v in mnist_data]) * \
 
 
 # print("here:",props/np.sum(props,(1,2), keepdims=True))
-#props = np.array([[[len(v)-100]] for v in mnist_data]) * \
+# props = np.array([[[len(v)-100]] for v in mnist_data]) * \
 #    props/np.sum(props, (1, 2), keepdims=True)
 #idx = 1000*np.ones(10, dtype=np.int64)
 # print("here2:",props)
@@ -127,20 +132,19 @@ for k in trange(10):
     X_public += public_mnist_data[k].values.tolist()
     y_public += (k*np.ones(len(public_mnist_data[k]))).tolist()
     # print(len(public_mnist_data[k]))
-print("length",len(X_public))
-print("length",len(y_public))
+print("length", len(X_public))
+print("length", len(y_public))
 
+# print("check len os user:", user, j,
+#       "len data", len(X[user]), num_samples)
 
-            # print("check len os user:", user, j,
-            #       "len data", len(X[user]), num_samples)
-
-print("IDX2:", idx) # counting samples for each labels
+print("IDX2:", idx)  # counting samples for each labels
 
 # Create data structure
-train_data = {'users': [], 'user_data':{}, 'num_samples':[]}
-test_data = {'users': [], 'user_data':{}, 'num_samples':[]}
-public_data = {'public_data':{},'num_samples_public':[]}
-all_samples=[]
+train_data = {'users': [], 'user_data': {}, 'num_samples': []}
+test_data = {'users': [], 'user_data': {}, 'num_samples': []}
+public_data = {'public_data': {}, 'num_samples_public': []}
+all_samples = []
 public_data["public_data"] = {'x': X_public, 'y': y_public}
 public_data['num_samples_public'].append(len(y_public))
 # Setup 5 users
@@ -149,29 +153,30 @@ public_data['num_samples_public'].append(len(y_public))
 # for i in trange(5, ncols=120):
 for i in range(NUM_USERS):
     uname = i
-    X_train, X_test, y_train, y_test = train_test_split(X[i], y[i], train_size=0.8, stratify=y[i])
+    X_train, X_test, y_train, y_test = train_test_split(
+        X[i], y[i], train_size=0.8, stratify=y[i])
     # X_train, X_test, y_train, y_test = train_test_split(X[i], y[i], train_size=0.75, stratify=y[i])
     num_samples = len(X[i])
-    train_len = int(0.8*num_samples)  #Test 80%
+    train_len = int(0.8*num_samples)  # Test 80%
     test_len = num_samples - train_len
-
 
     train_data["user_data"][uname] = {'x': X_train, 'y': y_train}
     train_data['users'].append(uname)
     train_data['num_samples'].append(len(y_train))
-    
+
     test_data['users'].append(uname)
     test_data["user_data"][uname] = {'x': X_test, 'y': y_test}
     test_data['num_samples'].append(len(y_test))
     all_samples.append(train_len + test_len)
 
 print("Num_samples:", train_data['num_samples'])
-print("Total_samples:",sum(train_data['num_samples'] + test_data['num_samples']))
+print("Total_samples:", sum(
+    train_data['num_samples'] + test_data['num_samples']))
 print("Numb_testing_samples:", test_data['num_samples'])
-print("Total_testing_samples:",sum(test_data['num_samples']))
+print("Total_testing_samples:", sum(test_data['num_samples']))
 print("Median of data samples:", np.median(all_samples))
 
-with open(train_path,'w') as outfile:
+with open(train_path, 'w') as outfile:
     json.dump(train_data, outfile)
 with open(test_path, 'w') as outfile:
     json.dump(test_data, outfile)

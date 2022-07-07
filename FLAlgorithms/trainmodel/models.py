@@ -43,7 +43,8 @@ class Net_DemAI(nn.Module):
         self.fc2 = nn.Linear(512, 10)
 
     def forward(self, x):
-        x = x.view(-1, 1, 28, 28)  # 1 is number of channel, convert from feature shape (784,) to 28x28x1
+        # 1 is number of channel, convert from feature shape (784,) to 28x28x1
+        x = x.view(-1, 1, 28, 28)
         x = self.conv1(x)
         x = nn.ReLU()(x)
         x = self.pool1(x)
@@ -75,7 +76,8 @@ class Net_DemAI_Client(nn.Module):
         self.fc2 = nn.Linear(512, 10)
 
     def forward(self, x):
-        x = x.view(-1, 1, 28, 28)  # 1 is number of channel, convert from feature shape (784,) to 28x28x1
+        # 1 is number of channel, convert from feature shape (784,) to 28x28x1
+        x = x.view(-1, 1, 28, 28)
         x = self.conv1(x)
         x = nn.ReLU()(x)
         x = self.pool1(x)
@@ -350,6 +352,8 @@ class CNNCifar_Server_3layer(nn.Module):
         activation2 = self.dropout(F.relu(self.fc2(x)))
         x = self.fc3(activation2)
         return x, activation2
+
+
 class CNNCifar_Server_4layer(nn.Module):
     def __init__(self, num_classes):
         super(CNNCifar_Server_4layer, self).__init__()
@@ -386,6 +390,7 @@ class CNNCifar_Server_4layer(nn.Module):
         x = self.fc3(activation2)
         return x, activation2
 
+
 class CNNCifar100(nn.Module):
     def __init__(self, num_classes):
         super(CNNCifar100, self).__init__()
@@ -396,7 +401,6 @@ class CNNCifar100(nn.Module):
         self.fc1 = nn.Linear(128 * 5 * 5, 256)
         self.fc2 = nn.Linear(256, 128)
         self.fc3 = nn.Linear(128, num_classes)
-
 
         self.weight_keys = [['fc1.weight', 'fc1.bias'],
                             ['fc2.weight', 'fc2.bias'],
@@ -413,6 +417,8 @@ class CNNCifar100(nn.Module):
         activation2 = self.drop((F.relu(self.fc2(x))))
         x = self.fc3(activation2)
         return x, activation2
+
+
 class Mclr_Logistic(nn.Module):
     def __init__(self, input_dim=784, output_dim=10):
         super(Mclr_Logistic, self).__init__()
@@ -424,4 +430,3 @@ class Mclr_Logistic(nn.Module):
         x = self.fc1(x)
         output = F.log_softmax(x, dim=1)
         return output
-
