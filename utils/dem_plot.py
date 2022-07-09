@@ -96,29 +96,13 @@ def plot_dendo_data_dem():
 
 def plot_from_file():
     f_data = read_data(rs_file_path)
-    # if("dem" in RUNNING_ALG):
-    #     ### PLOT DENDROGRAM ####
-    #     plot_dendo_data_dem()
-    #     # dendo_data = f_data['dendo_data']
-    #     # dendo_data_round = f_data['dendo_data_round']
-    #     # i=0
-    #     # for m_linkage in dendo_data:
-    #     #     plot_dendrogram(m_linkage, dendo_data_round[i], RUNNING_ALG)
-    #     #     i+=1
-    print("DEM-AI --------->>>>> Plotting")
+    print("--------->>>>> Plotting")
     print("Algorithm:", RUNNING_ALG)
     alg_name = RUNNING_ALG + "_"
 
     plt.figure(4)
     plt.clf()
     plt.plot(f_data['root_test'], label="Root_test", linestyle="--")
-    if("dem" in RUNNING_ALG):
-        # for k in range (K_Levels):
-        plt.plot(f_data['gs_level_test'][-2, :, 0],
-                 label="Gr(K)_spec_test", linestyle="-.")
-        plt.plot(f_data['gg_level_test'][-2, :, 0],
-                 label="Gr(K)_gen_test", linestyle="-.")
-
     plt.plot(np.arange(len(f_data['cs_avg_data_test'])),
              f_data['cs_avg_data_test'], label="Client_spec_test")
     plt.plot(np.arange(len(f_data['cg_avg_data_test'])),
@@ -163,27 +147,27 @@ def plot_from_file():
     plt.title("Testing Client Generalization")
     plt.savefig(PLOT_PATH + alg_name + "C_Gen_Testing.pdf")
 
-    # plt.figure(10)
-    # plt.clf()
-    # plt.plot(f_data['cg_data_train'])
-    # plt.plot(f_data['root_train'], linestyle="--", label="root train")
-    # plt.legend()
-    # plt.xlabel("Global Rounds")
-    # plt.ylim(0, 1.02)
-    # plt.grid()
-    # plt.title("Training Client Generalization")
-    # plt.savefig(PLOT_PATH + alg_name + "C_Gen_Training.pdf")
+    plt.figure(10)
+    plt.clf()
+    plt.plot(f_data['cg_data_train'])
+    plt.plot(f_data['root_train'], linestyle="--", label="root train")
+    plt.legend()
+    plt.xlabel("Global Rounds")
+    plt.ylim(0, 1.02)
+    plt.grid()
+    plt.title("Training Client Generalization")
+    plt.savefig(PLOT_PATH + alg_name + "C_Gen_Training.pdf")
 
     plt.show()
 
-    # print("** Summary Results: ---- Training ----")
-    # print("AVG Clients Specialization - Training:", f_data['cs_avg_data_train'])
-    # print("AVG Clients Generalization - Training::", f_data['cg_avg_data_train'])
-    # print("Root performance - Training:", f_data['root_train'])
-    # print("** Summary Results: ---- Testing ----")
-    # print("AVG Clients Specialization - Testing:", f_data['cs_avg_data_test'])
-    # print("AVG Clients Generalization - Testing:", f_data['cg_avg_data_test'])
-    # print("Root performance - Testing:", f_data['root_test'])
+    print("** Summary Results: ---- Training ----")
+    print("AVG Clients Specialization - Training:", f_data['cs_avg_data_train'])
+    print("AVG Clients Generalization - Training::", f_data['cg_avg_data_train'])
+    print("Root performance - Training:", f_data['root_train'])
+    print("** Summary Results: ---- Testing ----")
+    print("AVG Clients Specialization - Testing:", f_data['cs_avg_data_test'])
+    print("AVG Clients Generalization - Testing:", f_data['cg_avg_data_test'])
+    print("Root performance - Testing:", f_data['root_test'])
 
 
 if __name__ == '__main__':

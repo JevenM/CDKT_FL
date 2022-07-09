@@ -441,11 +441,15 @@ class Dem_Server(Server):
     def evaluating_global_CDKT(self, i):
         # evaluate global model on all client dataset
         ct, ns = self.gc_test(self.model)
-        tqdm.write('At round {} global testing accuracy: {}'.format(i, ct / ns))
+        tqdm.write('CDKT-At round {} global testing accuracy: {}'.format(i, ct / ns))
         self.rs_glob_acc.append(ct / ns)
 
-    def c_test(self, i, mode="spe"):  # mode spe: specialization, gen: generalization
-        '''tests self.latest_model on given clients
+    def c_test(self, i:int, mode="spe"):  
+        '''
+        tests self.latest_model on given clients
+        
+        Args:
+            mode(str): spe: specialization, gen: generalization
         '''
         num_samples = []
         tot_correct = []
@@ -481,24 +485,38 @@ class Dem_Server(Server):
         groups = [c.group for c in self.users]
         return ids, groups, num_samples, tot_correct
 
-    # mode spe: specialization, gen: generalization
-    def evaluating_clients(self, i, mode="spe"):
-        # evaluate C-GEN and C-SPE on testing data
+    
+    def evaluating_clients(self, i:int, mode="spe"):
+        '''
+        This is a function for evaluating clients.
+
+        Evaluating C-GEN and C-SPE on testing data for all clients. 
+
+        Args:
+            i(int): index of rounds
+            mode(str): mode for evaluation. spe: specialization, gen: generalization
+        '''
+        
+        # evaluating on testing data
         stats = self.c_test(i, mode)
+
         if mode == "spe":
-            stats_train = self.c_train_error_and_loss(
-                i, mode)  # evaluate C-SPE on training data
+            # evaluate C-SPE on training data
+            stats_train = self.c_train_error_and_loss(i, mode)
+            # no need to evaluate C-GEN on training data
         elif (mode == "gen"):
-            stats_train = []  # no need to evaluate C-GEN on training data
+            stats_train = []  
 
         test_acr = np.sum(stats[3]) * 1.0 / np.sum(stats[2])
         tqdm.write('At round {} AvgC. testing accuracy: {}'.format(i, test_acr))
+
         if mode == "spe":
             train_acr = np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])
             tqdm.write(
                 'At round {} AvgC. training accuracy: {}'.format(i, train_acr))
         elif (mode == "gen"):
             train_acr = []
+
         return test_acr, train_acr
 
     # mode spe: specialization, gen: generalization

@@ -41,7 +41,7 @@ local_learning_rate = 0.03
 global_learning_rate = 0.03
 global_generalized_epochs = 2
 LOCAL_EPOCH = 2
-NUM_GLOBAL_ITERS = 60  # Number of global rounds, default 100
+NUM_GLOBAL_ITERS = 100  # Number of global rounds, default 100
 
 
 SEED = 1

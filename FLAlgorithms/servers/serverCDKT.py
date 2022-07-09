@@ -404,14 +404,15 @@ class CDKT(Dem_Server):
                 updated_model, _ = self.optimizer.step()
 
     def train(self):
+        print("CDKT¿ªÊ¼ÑµÁ·")
         for glob_iter in range(self.num_glob_iters):
 
             self.selected_users = self.select_users(glob_iter, self.num_users)
             # self.selected_users = self.users
 
             if(self.experiment):
-                print("cannt see me")
                 self.experiment.set_epoch(glob_iter + 1)
+                
             print("-------------Round number: ", glob_iter, " -------------")
 
             # ============= Test each client =============
