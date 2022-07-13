@@ -61,18 +61,23 @@ class DemSGD(Optimizer):
 #                 p.data = p.data - group['lr'] * (p.grad.data + group['mu']* prox_terms)  # w = w - lr * (grad L(w) + mu * prox)
 #         return group['params'], loss
 
+
 class DemProx_SGD(Optimizer):
-    def __init__(self, params, lr, mu = 0):
-        defaults = dict(lr=lr, mu = mu)
+    '''
+    @Mao
+    '''
+    def __init__(self, params, lr, mu=0):
+        defaults = dict(lr=lr, mu=mu)
         super(DemProx_SGD, self).__init__(params, defaults)
-    #in DemLearn we want the lobal weight update need to be close to the generalized weight
-    def step(self, mu_t=0, gen_weights=None,closure=None):
+
+    # in DemLearn we want the lobal weight update need to be close to the generalized weight
+    def step(self, mu_t=0, gen_weights=None, closure=None):
         loss = None
         if closure is not None:
             loss = closure
-        # prox_weight = prox_weight_updated
-        # if (gen_weights is not None):
-        #     print("Len of gen_weights:",len(gen_weights))
+        if gen_weights is not None:
+            print("Len of gen_weights:", len(gen_weights))
+
         for group in self.param_groups:
             # print(group)
             if (gen_weights is None or mu_t == 0):
@@ -82,12 +87,12 @@ class DemProx_SGD(Optimizer):
             else:
                 gen_w, fraction = gen_weights
                 # print(gen_w)
-                # print("fraction:",fraction)
-                for p, g_w  in zip(group['params'],gen_w.parameters()):
+                # print("fraction:", fraction)
+                for p, g_w in zip(group['params'], gen_w.parameters()):
                     prox_terms = fraction * p.data - g_w.data  # 1/Ng* w - 1/Ng*w_prox)
                     # print(prox_terms)
                     # p.data = p.data - group['lr'] * (p.grad.data + group['mu']* prox_terms)  # w = w - lr * (grad L(w) + mu * prox)
-                    p.data = p.data - group['lr'] * (p.grad.data + mu_t* prox_terms)
+                    p.data = p.data - group['lr'] * (p.grad.data + mu_t * prox_terms)
                 # for (p, g_w) in zip(group['params'],gen_w.parameters()):
                 #     # print(p.data)
                 #     p.data = p.data - group['lr'] * p.grad.data

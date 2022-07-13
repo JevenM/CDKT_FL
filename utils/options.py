@@ -9,17 +9,9 @@ from Setting import DATASET, LOCAL_EPOCH, NUM_GLOBAL_ITERS, RUNNING_ALG, Frac_us
 def args_parser():
     parser = argparse.ArgumentParser()
     # parser.add_argument('--seed', type=int, default=1, help='random seed (default: 1)')
-    if(DATASET == "mnist"):
-        Input_DS = "Mnist"
-    else:
-        Input_DS = DATASET
-    if(RUNNING_ALG == "fedavg"):
-        Input_Alg = "FedAvg"
-    else:
-        Input_Alg = RUNNING_ALG
 
-    parser.add_argument("--dataset", type=str, default=Input_DS, choices=[
-                        "EMNIST", "human_activity", "gleam", "vehicle_sensor", "mnist", "Synthetic", "Cifar10", "fmnist", "Cifar100"])
+    parser.add_argument("--dataset", type=str, default=DATASET, choices=[
+                        "EMNIST", "human_activity", "gleam", "vehicle_sensor", "Mnist", "Synthetic", "Cifar10", "fmnist", "Cifar100"])
     # parser.add_argument("--server_model", type=str, default="cnn", choices=["cnn","resnet"])
     parser.add_argument("--client_model", type=str,
                         default="cnn", choices=["cnn", "resnet"])
@@ -34,7 +26,7 @@ def args_parser():
                         default=NUM_GLOBAL_ITERS)
     parser.add_argument("--local_epochs", type=int, default=LOCAL_EPOCH)
     parser.add_argument("--optimizer", type=str, default="SGD")
-    parser.add_argument("--algorithm", type=str, default=Input_Alg, choices=[
+    parser.add_argument("--algorithm", type=str, default=RUNNING_ALG, choices=[
                         "pFedMe", "pFedMe_p", "PerAvg", "FedAvg", "FedU", "Mocha", "Local", "Global", "DemLearn", "DemLearnRep", "CDKT"])
     parser.add_argument("--subusers", type=float, default=Frac_users,
                         help="Fraction of Num Users per round")  # Fraction number of users
@@ -47,12 +39,13 @@ def args_parser():
     parser.add_argument("--gpu", type=int, default=0,
                         help="Which GPU to run the experiments")  # GPU dev_id, -1 is CPU
     parser.add_argument("--cutoff", type=int, default=0,
-                        help="Cutoff data sample")
+                        help="Cutoff part of data samples or random subset of users")
     parser.add_argument("--beta", type=float, default=0,
                         help="Average moving parameter for pFedMe, or Second learning rate of Per-FedAvg")
     parser.add_argument("--DECAY", type=bool, default=0,
                         help="DECAY or CONSTANT")
-    parser.add_argument("--mu", type=int, default=0, help="mu parameter")
+    parser.add_argument("--mu", type=int, default=0,
+                        help="mu parameter, demlearn used")
     parser.add_argument("--gamma", type=int, default=0, help="gama parameter")
     parser.add_argument("--total_users", type=int,
                         default=N_clients, help="total users")

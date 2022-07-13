@@ -9,13 +9,13 @@ from Setting import *
 
 
 class Dem_Server(Server):
-    def __init__(self, experiment, device, dataset, algorithm, model, client_model, batch_size, learning_rate, beta, L_k,
-                 num_glob_iters, local_epochs, optimizer, num_users, times, args=None):
-        super().__init__(experiment, device, dataset, algorithm, model, client_model, batch_size, learning_rate, beta, L_k, num_glob_iters,
-                         local_epochs, optimizer, num_users, times)
+    def __init__(self, experiment, device, dataset, algorithm, model, client_model, batch_size, learning_rate, beta, L_K,
+                 num_glob_iters, local_epochs, num_users, times, args=None):
+        super().__init__(experiment, device, dataset, algorithm, model, client_model, batch_size, learning_rate, beta, L_K, num_glob_iters,
+                         local_epochs, num_users, times)
 
         # DEMLEARN PARAMS
-        if(args is not None):
+        if(args is not None)
             if (args.mu > 0):
                 args.algorithm += "_Prox"
                 self.algorithm = args.algorithm
@@ -23,6 +23,7 @@ class Dem_Server(Server):
             self.num_rounds = num_glob_iters
             self.total_users = args.total_users
             self.N_clients = self.total_users
+            # number of selected users
             self.selected_N_clients = int(self.num_users * self.total_users)
             self.args = args
             self.count_grs = np.zeros(K_Levels + 1)
@@ -357,18 +358,38 @@ class Dem_Server(Server):
 
     # C-GEN for Training data
     def gc_train_error_and_loss(self):
+        '''
+        @Mao
+        It is impossible to execute this function.
+        '''
         num_samples = []
         tot_correct = []
+        loss = []
 
         for c in self.users:
             ct, cl, ns = c.train_error_and_loss()
             tot_correct.append(ct * 1.0)
             num_samples.append(ns)
+            loss.append(cl)
 
-        return np.sum(tot_correct), np.sum(tot_correct), np.sum(num_samples)
+        return np.sum(tot_correct), np.sum(loss), np.sum(num_samples)
 
-    # mode spe: specialization, gen: generalization
     def c_train_error_and_loss(self, i, mode="spe"):
+        '''
+        @Mao
+
+        Get selected users' training results.
+
+        Args:
+            `i`(int): global round index
+            `mode`(str): spe: specialization, gen: generalization
+        Returns:
+            `ids`(list): all users id list
+            `groups`(list): not used, all users group list
+            `num_samples`(list): train samples of all users
+            `tot_correct`(list): num of correct samples of all users
+            `losses`(list): losses of all users for training dataset
+        '''
         num_samples = []
         tot_correct = []
         losses = []
@@ -377,8 +398,9 @@ class Dem_Server(Server):
         for c in self.selected_users:
             if (mode == "spe"):
                 ct, cl, ns = c.train_error_and_loss()
+            # impossible be "gen"
             elif (mode == "gen"):
-                # Test client as testing group approach in gen mode
+                # Test client in gen mode
                 ct, cl, ns = self.gc_train_error_and_loss()
 
             tot_correct.append(ct * 1.0)
@@ -386,11 +408,11 @@ class Dem_Server(Server):
             losses.append(cl * 1.0)
             clients_acc.append(ct / ns)
 
-        # print("Training Acc Client:", clients_acc)
-        # self.client_data_train[i][:] = clients_acc
+        print("Training Acc of selected Client:", clients_acc)
 
         if (mode == "spe"):
             self.cs_data_train[i, :] = clients_acc
+        # impossible be "gen"
         elif (mode == "gen"):
             self.cg_data_train[i, :] = clients_acc
 
@@ -426,8 +448,16 @@ class Dem_Server(Server):
 
         return ids, groups, num_samples, tot_correct
 
-    # C-GEN for Testing data
     def gc_test(self, c_model):
+        '''
+        @Mao
+
+        C-GEN for Testing data of `c_model`
+
+        Args:
+            `c_model`: model or client model of a selected user for Same_model or not
+        '''
+        # store the 2 result of a c_model on all users
         num_samples = []
         tot_correct = []
 
@@ -439,82 +469,101 @@ class Dem_Server(Server):
         return np.sum(tot_correct), np.sum(num_samples)
 
     def evaluating_global_CDKT(self, i):
-        # evaluate global model on all client dataset
-        ct, ns = self.gc_test(self.model)
-        tqdm.write('CDKT-At round {} global testing accuracy: {}'.format(i, ct / ns))
-        self.rs_glob_acc.append(ct / ns)
-
-    def c_test(self, i:int, mode="spe"):  
         '''
-        tests self.latest_model on given clients
-        
+        @Mao
+
+        Evaluate global model on all client dataset.
+
+        We will Send the global model to each client for testing.
+
         Args:
-            mode(str): spe: specialization, gen: generalization
+            `i`(int): global iteration
+        '''
+        ct, ns = self.gc_test(self.model)
+        res = ct / ns
+        tqdm.write(
+            'CDKT-At round {} global testing accuracy: {}'.format(i, res))
+        self.rs_glob_acc.append(res)
+
+    def c_test(self, i: int, mode: str = "spe"):
+        '''
+        @Mao
+
+        Testing self.latest_model on given clients
+
+        Args:
+            `mode`(str): spe: specialization, gen: generalization
+            `i`(int): index of rounds
+
+        Returns:
+            `ids`: An all users id list
+            `groups`: An all users group list
+            `num_samples`: number of samples of selected users, a list
+            `total_correct`: A list of totcal correct number of selected users
         '''
         num_samples = []
-        tot_correct = []
+        total_correct = []
         clients_acc = []
 
         for c in self.selected_users:
-            # print("user id",c.id)
+            ct, ns = 0, 0
             if (mode == "spe"):
+                # Test client on itself specifically
                 ct, ns, _ = c.test()
-                tot_correct.append(ct * 1.0)
-                num_samples.append(ns)
             elif (mode == "gen"):
-                # c_test_model = copy.deepcopy(c.model)
-                # ct, ns = self.gc_test(c_test_model)  # Test client as testing group approach in gen mode
                 if Same_model:
-                    # Test client as testing group approach in gen mode
+                    # Test client on all users generally
                     ct, ns = self.gc_test(c.model)
                 else:
-                    # Test client as testing group approach in gen mode
                     ct, ns = self.gc_test(c.client_model)
-            tot_correct.append(ct * 1.0)
+            total_correct.append(ct * 1.0)
             num_samples.append(ns)
             clients_acc.append(ct / ns)
 
-        # print("Testing Acc Client:", clients_acc )
+        print("Testing Acc of selected Client:", clients_acc)
         if (mode == "spe"):
             self.cs_data_test[i, :] = clients_acc
         elif (mode == "gen"):
             self.cg_data_test[i, :] = clients_acc
-        # self.client_data_test.append(clients_acc)
 
         ids = [c.id for c in self.users]
+        # not used
         groups = [c.group for c in self.users]
-        return ids, groups, num_samples, tot_correct
+        return ids, groups, num_samples, total_correct
 
-    
-    def evaluating_clients(self, i:int, mode="spe"):
+    def evaluating_clients(self, i: int, mode="spe"):
         '''
+        @Mao
         This is a function for evaluating clients.
 
-        Evaluating C-GEN and C-SPE on testing data for all clients. 
+        Evaluating C-GEN and C-SPE on testing data for all clients.
 
         Args:
             i(int): index of rounds
             mode(str): mode for evaluation. spe: specialization, gen: generalization
+
+        Returns:
+            test_acr(float): accuracy rate of testing data
+            train_acr(float): accuracy rate of training data
         '''
-        
+
         # evaluating on testing data
         stats = self.c_test(i, mode)
+        # total_correct / num_samples of all selected users
+        test_acr = np.sum(stats[3]) * 1.0 / np.sum(stats[2])
+        tqdm.write(
+            '---------------- At round {} AvgC. testing accuracy of selected users: {}'.format(i, test_acr))
 
         if mode == "spe":
             # evaluate C-SPE on training data
             stats_train = self.c_train_error_and_loss(i, mode)
-            # no need to evaluate C-GEN on training data
-        elif (mode == "gen"):
-            stats_train = []  
-
-        test_acr = np.sum(stats[3]) * 1.0 / np.sum(stats[2])
-        tqdm.write('At round {} AvgC. testing accuracy: {}'.format(i, test_acr))
-
-        if mode == "spe":
+            # tot_correct / num_samples of train data
             train_acr = np.sum(stats_train[3]) * 1.0 / np.sum(stats_train[2])
             tqdm.write(
-                'At round {} AvgC. training accuracy: {}'.format(i, train_acr))
+                '---------------- At round {} AvgC. training accuracy of selected users: {}'.format(i, train_acr))
         elif (mode == "gen"):
+            # no need to evaluate C-GEN on training data
+            stats_train = []
             train_acr = []
 
         return test_acr, train_acr

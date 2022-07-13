@@ -10,7 +10,7 @@ import copy
 
 class Server:
     def __init__(self, experiment, device, dataset, algorithm, model,  client_model, batch_size, learning_rate, beta, L_k,
-                 num_glob_iters, local_epochs, optimizer, num_users, times):
+                 num_glob_iters, local_epochs, num_users, times):
 
         # Set up the main attributes
         self.device = device
@@ -22,8 +22,10 @@ class Server:
         self.total_train_samples = 0
         self.model = copy.deepcopy(model)
         self.client_model = copy.deepcopy(client_model)
+        # all user objects
         self.users = []
         self.selected_users = []
+        # fraction of users
         self.num_users = num_users
         self.beta = beta
         self.L_k = L_k
@@ -41,6 +43,9 @@ class Server:
         # self.send_parameters()
 
     def get_data(self, train, test):
+        '''
+        get a small part from test and train set.
+        '''
         if(self.sub_data == 1):
             train = train[int(0.95*len(train)):]
             test = test[int(0.8*len(test)):]
@@ -49,7 +54,7 @@ class Server:
             test = test[int(0.6*len(test)):]
         return train, test
 
-    def get_partion(self, total_users):
+    def get_partion(self, total_users: int):
         if(self.sub_data):
             if(self.sub_data == 1):
                 partion = int(0.9 * total_users)
@@ -113,6 +118,11 @@ class Server:
             self.add_parameters(user, user.train_samples / total_train)
 
     def save_model(self):
+        '''
+        @Mao
+
+        Save server model.
+        '''
         model_path = os.path.join("models", self.dataset[1])
         if not os.path.exists(model_path):
             os.makedirs(model_path)
@@ -126,24 +136,28 @@ class Server:
     def model_exists(self):
         return os.path.exists(os.path.join("models", self.dataset, "server" + ".pt"))
 
-    def select_users(self, round, fac_users):
-        '''selects num_clients clients weighted by number of samples from possible_clients
+    def select_users(self, round: int, fac_users: float) -> list:
+        '''
+        @Mao
+
+        selects `num_users` clients weighted by number of samples from possible_clients
+
+        `num_users`: number of clients to select; default 20. note that within function, num_users is set to min(num_users, len(users))
+
         Args:
-            num_clients: number of clients to select; default 20
-                note that within function, num_clients is set to
-                min(num_clients, len(possible_clients))
+            `round`: round index of global rounds
+            `fac_users`: fraction of selected users
 
         Return:
-            list of selected clients objects
+            list of selected clients/users objects
         '''
         if(fac_users == 1):
             print("There are all users are selected")
             return self.users
-        num_users = int(fac_users * len(self.users))
-        num_users = min(num_users, len(self.users))
+
+        num_users = min(int(fac_users * len(self.users)), len(self.users))
         if fac_users < 1.0:
             np.random.seed(round)
-        # , p=pk)
         return np.random.choice(self.users, num_users, replace=False)
 
     def meta_split_users(self, ratio=0.8):
@@ -207,8 +221,10 @@ class Server:
         for pre_param, param in zip(previous_param, self.model.parameters()):
             param.data = (1 - self.beta)*pre_param.data + self.beta*param.data
 
-    # Save loss, accurancy to h5 fiel
     def save_results(self):
+        '''
+        Save loss, accurancy to h5 file
+        '''
         dir_path = "./results"
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)

@@ -11,13 +11,11 @@ plt.rcParams.update({'font.size': 14})
 def simple_read_data(alg):
     print("simple_read_data"+alg)
     hf = h5py.File("./results/"+'{}.h5'.format(alg), 'r')
-    # hf = h5py.File(alg, 'r')
+
     rs_glob_acc = np.array(hf.get('rs_glob_acc')[:])
     rs_avg_acc = np.array(hf.get('rs_avg_acc')[:])
     rs_train_acc = np.array(hf.get('rs_train_acc')[:])
     rs_train_loss = np.array(hf.get('rs_train_loss')[:])
-    # if(alg == "Mnist_Global_0.03_1_0.01_1.0u_20b_5_0_avg"):
-    #    rs_train_loss[rs_train_loss > 0.05] = 0.049
     for i in range(len(rs_avg_acc)):
         if(rs_avg_acc[i] > 1):
             rs_avg_acc[i] = rs_avg_acc[i]/100
@@ -93,6 +91,9 @@ def get_data_label_style(input_data=[], linestyles=[], algs_lbl=[], lamb=[], loc
 
 
 def average_data(num_users=100, loc_ep1=5, Numb_Glob_Iters=10, lamb="", learning_rate="", beta="", algorithms="", batch_size=0, dataset="", k="", personal_learning_rate="", times=5, cutoff=0):
+    '''
+    @Mao TODO
+    '''
     if(algorithms == "PerAvg"):
         algorithms = "PerAvg_p"
     glob_acc, train_acc, train_loss, avg_acc = get_all_training_data_value(

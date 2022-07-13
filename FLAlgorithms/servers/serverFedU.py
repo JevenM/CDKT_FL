@@ -3,16 +3,16 @@ import os
 
 from FLAlgorithms.users.userFedU import UserFedU
 from FLAlgorithms.servers.serverbase import Server
-from utils.model_utils import read_data, read_user_data
+from utils.model_utils import read_user_data
 import numpy as np
 
 # Implementation for FedAvg Server
 
 
 class FedU(Server):
-    def __init__(self, experiment, device, dataset, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, optimizer, num_users, K, times, cutoff):
+    def __init__(self, experiment, device, dataset, algorithm, model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, num_users, K, times, cutoff):
         super().__init__(experiment, device, dataset, algorithm, model[0], batch_size, learning_rate, beta, L_k, num_glob_iters,
-                         local_epochs, optimizer, num_users, times)
+                         local_epochs, num_users, times)
 
         # Initialize data for all  users
         # subset data
@@ -37,7 +37,7 @@ class FedU(Server):
                     train, test = self.get_data(train, test)
 
             user = UserFedU(device, id, train, test, model, batch_size,
-                            learning_rate, beta, L_k, K,  local_epochs, optimizer)
+                            learning_rate, beta, L_k, K,  local_epochs)
 
             self.users.append(user)
             self.total_train_samples += user.train_samples

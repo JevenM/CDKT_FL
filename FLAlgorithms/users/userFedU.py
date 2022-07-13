@@ -9,8 +9,9 @@ import copy
 import numpy as np
 # Implementation for FedAvg clients
 
+
 class UserFedU(User):
-    def __init__(self, device, numeric_id, train_data, test_data, model, batch_size, learning_rate, beta, L_k, K, local_epochs, optimizer):
+    def __init__(self, device, numeric_id, train_data, test_data, model, batch_size, learning_rate, beta, L_k, K, local_epochs):
         super().__init__(device, numeric_id, train_data, test_data, model[0], batch_size, learning_rate, beta, L_k,
                          local_epochs)
 
@@ -19,7 +20,8 @@ class UserFedU(User):
         else:
             self.loss = nn.NLLLoss()
         self.K = K
-        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate, weight_decay = 0)
+        self.optimizer = torch.optim.SGD(
+            self.model.parameters(), lr=self.learning_rate, weight_decay=0)
 
     def set_grads(self, new_grads):
         if isinstance(new_grads, nn.Parameter):
@@ -34,8 +36,9 @@ class UserFedU(User):
         self.model.train()
         for epoch in range(1, self.local_epochs + 1):
             self.model.train()
-            for X,y in self.trainloader:
-                X, y = X.to(self.device), y.to(self.device)#self.get_next_train_batch()
+            for X, y in self.trainloader:
+                # self.get_next_train_batch()
+                X, y = X.to(self.device), y.to(self.device)
                 self.optimizer.zero_grad()
                 output = self.model(X)
                 loss = self.loss(output, y)
@@ -48,15 +51,18 @@ class UserFedU(User):
         akl = alk_connection
         for param in avg_weight_different:
             param.data = torch.zeros_like(param.data)
-        
+
         # Calculate the diffence of model between all users or tasks
         for i in range(len(user_list)):
             if(self.id != user_list[i].id):
                 if(self.K > 0 and self.K <= 2):
-                    akl[int(self.id)][int(user_list[i].id)] = self.get_alk(user_list, dataset, i)
+                    akl[int(self.id)][int(user_list[i].id)
+                                      ] = self.get_alk(user_list, dataset, i)
                 # K == 3 : akl will be generate randomly for MNIST
-                for avg, current_task, other_tasks in zip(avg_weight_different, self.model.parameters(),user_list[i].model.parameters()):
-                    avg.data += akl[int(self.id)][int(user_list[i].id)] * (current_task.data.clone() - other_tasks.data.clone())
-        
+                for avg, current_task, other_tasks in zip(avg_weight_different, self.model.parameters(), user_list[i].model.parameters()):
+                    avg.data += akl[int(self.id)][int(user_list[i].id)] * \
+                        (current_task.data.clone() - other_tasks.data.clone())
+
         for avg, current_task in zip(avg_weight_different, self.model.parameters()):
-            current_task.data = current_task.data - 0.5 * self.learning_rate * self.L_k * self.beta * self.local_epochs * avg
+            current_task.data = current_task.data - 0.5 * self.learning_rate * \
+                self.L_k * self.beta * self.local_epochs * avg

@@ -3,27 +3,28 @@ import random
 import numpy as np
 import torch
 
-READ_DATASET = True  # True or False => Set False to generate dataset.
 Full_model = False  # True: Using only outcomes of full models
 Rep_Full = False  # True: Using the embedding features of representation + outcomes of full models # False: Using only embedding features of rep
+
 Subset = False  # True: Using fraction of users
 Same_model = True  # True: Using homogeneous model, False: using heterogeneous model
-Ensemble = False  # Ensemble alpha=same with avg method, beta=0.05
+Ensemble = False  # Ensemble alpha=0.05 same as avg method, beta=0.05
+
+# moving average output info
 Moving_Average = False
+# Adam acclerate
 Accelerated = False
+# use y_hot to fuse knowledge
 Tune_output = True
 PLOT_PATH = "./figs/"
 RS_PATH = "./results/"
 FIG_PATH = "./results_fig/"
-# FIG_PATH = "./results_KSC2021/"
-PLOT_PATH_FIG = "./figs/"
-# PLOT_PATH_FIG="./KSC_Figs/"
 
 # Dataset selection
-DATASETS = ["mnist", "fmnist", "Cifar10", "Cifar100"]
+DATASETS = ["Mnist", "fmnist", "Cifar10", "Cifar100"]
 DATASET = DATASETS[0]
 # Algorithm selection
-RUNNING_ALGS = ["fedavg", "CDKT"]
+RUNNING_ALGS = ["FedAvg", "CDKT"]
 RUNNING_ALG = RUNNING_ALGS[1]
 # Metric selection
 CDKT_metrics = ["KL", "Norm2", "JSD"]
@@ -31,17 +32,18 @@ Global_CDKT_metric = CDKT_metrics[0]   # Global distance metric
 Local_CDKT_metric = CDKT_metrics[1]    # Local distance metric
 
 # Algorithm Parameter
-alpha = 0.05  # trade-off parameter of local training loss
+# trade-off parameter of local training loss
+alpha = 0.05
 # trade-off parameter of global distillation loss (Mnist:rep+full loss 0.2)
 beta = 0.05
+# moving average parameter for output
 gamma = 0.5
-
 
 local_learning_rate = 0.03
 global_learning_rate = 0.03
 global_generalized_epochs = 2
 LOCAL_EPOCH = 2
-NUM_GLOBAL_ITERS = 100  # Number of global rounds, default 100
+NUM_GLOBAL_ITERS = 1  # Number of global rounds, default 100
 
 
 SEED = 1
@@ -58,7 +60,6 @@ else:
 K_Levels = 1
 
 if(DATASET == "Cifar100"):
-    # NUM_GLOBAL_ITERS = 100
     NUMBER_LABEL = 100
 else:
     NUMBER_LABEL = 10
@@ -68,6 +69,7 @@ rs_file_path = "{}_{}_I{}_s{}_f{}_a{}_b{}_RF{}_SS{}_acc{}_gm{}_lm{}.h5".format(R
                                                                                Same_model, Full_model, alpha, beta, Rep_Full, Subset, Accelerated, Global_CDKT_metric, Local_CDKT_metric)
 rs_file_path = FIG_PATH + rs_file_path
 PLOT_PATH += DATASET+'_'
-print("Result Path ", rs_file_path)
+print("Result File Path ", rs_file_path)
 
-complex_file_path = "{}_{}_I{}_time_.h5".format(DATASET, RUNNING_ALG, NUM_GLOBAL_ITERS)
+complex_file_path = "{}_{}_I{}_time_.h5".format(
+    DATASET, RUNNING_ALG, NUM_GLOBAL_ITERS)

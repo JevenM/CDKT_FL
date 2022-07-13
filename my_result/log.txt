@@ -1,0 +1,179 @@
+
+Result File Path  ./results_fig/CDKT_Mnist_I1_sTrue_fFalse_a0.05_b0.05_RFFalse_SSFalse_accFalse_gmKL_lmNorm2.h5
+================================================================================
+Summary of training process:
+Algorithm: CDKT
+Batch size: 20
+Learing rate       : 0.03
+Average Moving       : 0
+total users       : 10
+fraction of users      : 1.0
+Number of global rounds       : 1
+Number of local rounds       : 2
+Dataset       : Mnist
+Local Model       : cnn
+Client Model       : cnn
+================================================================================
+---------------Running time:------------ 0
+public dataset len 355
+User  0 : Number of Train data 132  Number of test data 34  public len 355
+User  1 : Number of Train data 53  Number of test data 14  public len 355
+User  10 : Number of Train data 64  Number of test data 16  public len 355
+User  11 : Number of Train data 21  Number of test data 6  public len 355
+User  12 : Number of Train data 84  Number of test data 21  public len 355
+User  13 : Number of Train data 38  Number of test data 10  public len 355
+User  14 : Number of Train data 34  Number of test data 9  public len 355
+User  15 : Number of Train data 33  Number of test data 9  public len 355
+User  16 : Number of Train data 89  Number of test data 23  public len 355
+User  17 : Number of Train data 98  Number of test data 25  public len 355
+median of selected users samples: [166, 67, 80, 27, 105, 48, 43, 42, 112, 123] (sample) is 73.5
+Fraction number of users / total users: 1.0  /  10
+Finished creating server.
+CDKT begin training...
+There are all users are selected
+-------------Round number:  0  -------------
+============= Test Client Models - Specialization =============
+User  0 , All test dataset Accuracy-spe: 0.0 , All test dataset Loss: 2.356874704360962
+User  1 , All test dataset Accuracy-spe: 0.0 , All test dataset Loss: 2.3226988315582275
+User  10 , All test dataset Accuracy-spe: 0.0 , All test dataset Loss: 2.354846715927124
+User  11 , All test dataset Accuracy-spe: 0.0 , All test dataset Loss: 2.32651686668396
+User  12 , All test dataset Accuracy-spe: 0.2857142857142857 , All test dataset Loss: 2.222393751144409
+User  13 , All test dataset Accuracy-spe: 0.2 , All test dataset Loss: 2.301318407058716
+User  14 , All test dataset Accuracy-spe: 0.0 , All test dataset Loss: 2.385439157485962
+User  15 , All test dataset Accuracy-spe: 0.0 , All test dataset Loss: 2.287179946899414
+User  16 , All test dataset Accuracy-spe: 0.17391304347826086 , All test dataset Loss: 2.2511188983917236
+User  17 , All test dataset Accuracy-spe: 0.2 , All test dataset Loss: 2.218182325363159
+Testing Acc of selected Client: [0.0, 0.0, 0.0, 0.0, 0.2857142857142857, 0.2, 0.0, 0.0, 0.17391304347826086, 0.2]
+---------------- At round 0 AvgC. testing accuracy of selected users: 0.10179640718562874
+train_error_and_loss: User  0, Train Accuracy: 0 , Train Loss: tensor(2.3563, device='cuda:0', grad_fn=<AddBackward0>)
+train_error_and_loss: User  1, Train Accuracy: 0 , Train Loss: tensor(2.3172, device='cuda:0', grad_fn=<AddBackward0>)
+train_error_and_loss: User  10, Train Accuracy: 0 , Train Loss: tensor(2.3486, device='cuda:0', grad_fn=<AddBackward0>)
+train_error_and_loss: User  11, Train Accuracy: 0 , Train Loss: tensor(2.3478, device='cuda:0', grad_fn=<AddBackward0>)
+train_error_and_loss: User  12, Train Accuracy: 22 , Train Loss: tensor(2.2181, device='cuda:0', grad_fn=<AddBackward0>)
+train_error_and_loss: User  13, Train Accuracy: 8 , Train Loss: tensor(2.3332, device='cuda:0', grad_fn=<AddBackward0>)
+train_error_and_loss: User  14, Train Accuracy: 0 , Train Loss: tensor(2.3875, device='cuda:0', grad_fn=<AddBackward0>)
+train_error_and_loss: User  15, Train Accuracy: 0 , Train Loss: tensor(2.3156, device='cuda:0', grad_fn=<AddBackward0>)
+train_error_and_loss: User  16, Train Accuracy: 15 , Train Loss: tensor(2.2344, device='cuda:0', grad_fn=<AddBackward0>)
+train_error_and_loss: User  17, Train Accuracy: 14 , Train Loss: tensor(2.2186, device='cuda:0', grad_fn=<AddBackward0>)
+Training Acc of selected Client: [0.0, 0.0, 0.0, 0.0, 0.2619047619047619, 0.21052631578947367, 0.0, 0.0, 0.16853932584269662, 0.14285714285714285]
+---------------- At round 0 AvgC. training accuracy of selected users: 0.0913312693498452
+============= Test Client Models - Generalization =============
+Testing Acc of selected Client: [0.10179640718562874, 0.10179640718562874, 0.10179640718562874, 0.10179640718562874, 0.10179640718562874, 0.10179640718562874, 0.10179640718562874, 0.10179640718562874, 0.10179640718562874, 0.10179640718562874]
+---------------- At round 0 AvgC. testing accuracy of selected users: 0.10179640718562874
+============= Test Global Models  =============
+CDKT-At round 0 global testing accuracy: 0.10179640718562874
+client train for the first round
+client train for the first round
+client train for the first round
+client train for the first round
+client train for the first round
+client train for the first round
+client train for the first round
+client train for the first round
+client train for the first round
+client train for the first round
+clients_rep_local_dict keys(client index):  dict_keys([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+Backend Qt5Agg is interactive backend. Turning interactive mode on.
+avg_local_dict keys(batch_index):  dict_keys([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17])
+averaging parameter gamma:  0.5
+avg_local_dict_prev_1 keys(should be empty):  dict_keys([])
+agg_local_dict keys(batch_index):  dict_keys([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([15, 512])
+output_pub-- torch.Size([15, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([20, 512])
+output_pub-- torch.Size([20, 10])
+batch_rep_logits--:  torch.Size([15, 512])
+output_pub-- torch.Size([15, 10])
+write result is empty:  []
+--write: root_test == [0.10179640718562874]
+--write: root_train == []
+--write: cs_avg_data_test == [0.10179640718562874]
+--write: cs_avg_data_train == [0.0913312693498452]
+--write: cg_avg_data_test == [0.10179640718562874]
+--write: cg_avg_data_train == [[]]
+--write: cs_data_test == [[0.         0.         0.         0.         0.28571429 0.2
+  0.         0.         0.17391304 0.2       ]]
+--write: cs_data_train == [[0.         0.         0.         0.         0.26190476 0.21052632
+  0.         0.         0.16853933 0.14285714]]
+--write: cg_data_test == [[0.10179641 0.10179641 0.10179641 0.10179641 0.10179641 0.10179641
+  0.10179641 0.10179641 0.10179641 0.10179641]]
+--write: cg_data_train == [[0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]]
+--write: N_clients == [10]
+Successfully save to file! - data_utils
+We will read data file - dem_plot!
+--------->>>>> Plotting >>>>>------------
+Result of Algorithm: CDKT
+******* Summary Results: ---- Training ----
+AVG Clients Specialization - Training: [0.09133127]
+AVG Clients Generalization - Training:: []
+Root performance - Training: []
+******* Summary Results: ---- Testing ----
+AVG Clients Specialization - Testing: [0.10179641]
+AVG Clients Generalization - Testing: [0.10179641]
+Root performance - Testing: [0.10179641]

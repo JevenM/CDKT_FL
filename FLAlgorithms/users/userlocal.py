@@ -10,8 +10,9 @@ import numpy as np
 from FLAlgorithms.optimizers.fedoptimizer import MySGD
 # Implementation for FedAvg clients
 
+
 class UserLocal(User):
-    def __init__(self, device, numeric_id, train_data, test_data, model, batch_size, learning_rate, beta, L_k, local_epochs, optimizer):
+    def __init__(self, device, numeric_id, train_data, test_data, model, batch_size, learning_rate, beta, L_k, local_epochs):
         super().__init__(device, numeric_id, train_data, test_data, model[0], batch_size, learning_rate, beta, L_k,
                          local_epochs)
 
@@ -20,7 +21,8 @@ class UserLocal(User):
         else:
             self.loss = nn.NLLLoss()
 
-        self.optimizer = MySGD(self.model.parameters(), lr=self.learning_rate, L_k = self.L_k)
+        self.optimizer = MySGD(self.model.parameters(),
+                               lr=self.learning_rate, L_k=self.L_k)
 
     def set_grads(self, new_grads):
         if isinstance(new_grads, nn.Parameter):
@@ -35,7 +37,7 @@ class UserLocal(User):
         self.model.train()
         for epoch in range(1, self.local_epochs + 1):
             self.model.train()
-            for X,y in self.trainloader:
+            for X, y in self.trainloader:
                 X, y = X.to(self.device), y.to(self.device)
                 self.optimizer.zero_grad()
                 output = self.model(X)
@@ -43,5 +45,3 @@ class UserLocal(User):
                 loss.backward()
                 self.optimizer.step()
         return LOSS
-
-

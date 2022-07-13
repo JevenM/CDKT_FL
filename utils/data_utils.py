@@ -4,7 +4,7 @@ import h5py as hf
 def write_file(file_name="../results/untitled.h5", **kwargs):
     with hf.File(file_name, "w") as data_file:
         for key, value in kwargs.items():
-            #print("%s == %s" % (key, value))
+            # print("--write: %s == %s" % (key, value))
             data_file.create_dataset(key, data=value)
     print("Successfully save to file! - data_utils")
 

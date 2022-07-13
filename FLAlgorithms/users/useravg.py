@@ -15,9 +15,9 @@ from utils.train_utils import KL_Loss
 
 
 class UserAVG(User):
-    def __init__(self, device, numeric_id, train_data, test_data, public_data, model, client_model,batch_size, learning_rate, beta, L_k,
-                 local_epochs, optimizer):
-        super().__init__(device, numeric_id, train_data, test_data, public_data,  model[0],client_model, batch_size, learning_rate, beta, L_k,
+    def __init__(self, device, numeric_id, train_data, test_data, public_data, model, client_model, batch_size, learning_rate, beta, L_k,
+                 local_epochs):
+        super().__init__(device, numeric_id, train_data, test_data, public_data,  model[0], client_model, batch_size, learning_rate, beta, L_k,
                          local_epochs)
 
         # if(model[1] == "Mclr_CrossEntropy"):
@@ -28,7 +28,9 @@ class UserAVG(User):
         self.criterion_KL = KL_Loss(temperature=3.0)
 
         # self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
-        self.optimizer = DemProx_SGD(self.model.parameters(), lr=self.learning_rate, mu=0)
+        self.optimizer = DemProx_SGD(
+            self.model.parameters(), lr=self.learning_rate, mu=0)
+
     def set_grads(self, new_grads):
         if isinstance(new_grads, nn.Parameter):
             for model_grad, new_grad in zip(self.model.parameters(), new_grads):
@@ -42,11 +44,12 @@ class UserAVG(User):
         self.model.train()
         for epoch in range(1, epochs + 1):
             self.model.train()
-            for X,y in self.trainloader:
-                X, y = X.to(self.device), y.to(self.device)#self.get_next_train_batch()
+            for X, y in self.trainloader:
+                # self.get_next_train_batch()
+                X, y = X.to(self.device), y.to(self.device)
                 self.optimizer.zero_grad()
                 # output = self.model(X)
-                output,_ = self.model(X)
+                output, _ = self.model(X)
                 loss = self.loss(output, y)
                 loss.backward()
                 self.optimizer.step()
@@ -66,18 +69,18 @@ class UserAVG(User):
             for X, y in self.trainloader:
                 # print(f"batch index{batch_idx}:")
                 # batch_idx+= 1
-                X, y = X.to(self.device), y.to(self.device)  # self.get_next_train_batch()
+                # self.get_next_train_batch()
+                X, y = X.to(self.device), y.to(self.device)
                 self.optimizer.zero_grad()
                 # output = self.model(X)
-                output,_ = self.model(X)
+                output, _ = self.model(X)
                 # gen_output = gen_model(X)
-                gen_output,_ = gen_model(X)
-
+                gen_output, _ = gen_model(X)
 
                 lossTrue = self.loss(output, y)
 
-                lossKD= self.criterion_KL(output,gen_output)
-                loss = lossTrue + 1* lossKD
+                lossKD = self.criterion_KL(output, gen_output)
+                loss = lossTrue + 1 * lossKD
                 loss.backward()
 
                 updated_model, _ = self.optimizer.step()
@@ -96,17 +99,18 @@ class UserAVG(User):
             for X, y in self.trainloader:
                 # print(f"batch index{batch_idx}:")
                 # batch_idx+= 1
-                X, y = X.to(self.device), y.to(self.device)  # self.get_next_train_batch()
+                # self.get_next_train_batch()
+                X, y = X.to(self.device), y.to(self.device)
                 self.optimizer.zero_grad()
                 output = self.model(X)
 
                 loss = self.loss(output, y)
                 loss.backward()
 
-                updated_model, _ = self.optimizer.step(mu_t=1, gen_weights=(gen_model,1.0))
+                updated_model, _ = self.optimizer.step(
+                    mu_t=1, gen_weights=(gen_model, 1.0))
 
         # update local model as local_weight_upated
         self.clone_model_paramenter(self.model.parameters(), self.local_model)
 
         # self.update_parameters(updated_model)
-

@@ -9,20 +9,22 @@ from FLAlgorithms.users.userbase import User
 
 # Implementation for Per-FedAvg clients
 
+
 class UserPerAvg(User):
-    def __init__(self, device, numeric_id, train_data, test_data, model, batch_size, learning_rate,beta,L_k,
-                 local_epochs, optimizer, total_users , num_users):
+    def __init__(self, device, numeric_id, train_data, test_data, model, batch_size, learning_rate, beta, L_k,
+                 local_epochs, total_users, num_users):
         super().__init__(device, numeric_id, train_data, test_data, model[0], batch_size, learning_rate, beta, L_k,
                          local_epochs)
         self.total_users = total_users
         self.num_users = num_users
-        
+
         if(model[1] == "Mclr_CrossEntropy"):
             self.loss = nn.CrossEntropyLoss()
         else:
             self.loss = nn.NLLLoss()
 
-        self.optimizer = PerFedAvg(self.model.parameters(), lr=self.learning_rate)
+        self.optimizer = PerFedAvg(
+            self.model.parameters(), lr=self.learning_rate)
 
     def set_grads(self, new_grads):
         if isinstance(new_grads, nn.Parameter):
@@ -36,10 +38,10 @@ class UserPerAvg(User):
         LOSS = 0
         self.model.train()
         num_minibatch = int(self.train_samples / self.batch_size)
-        for epoch in range(1, self.local_epochs + 1):  # local update 
+        for epoch in range(1, self.local_epochs + 1):  # local update
             self.model.train()
             for i in range(num_minibatch):
-            #step 1
+                # step 1
                 X, y = self.get_next_train_batch()
                 self.optimizer.zero_grad()
                 output = self.model(X)
@@ -47,29 +49,30 @@ class UserPerAvg(User):
                 loss.backward()
                 self.optimizer.step()
 
-                #step 2
+                # step 2
                 X, y = self.get_next_train_batch()
                 self.optimizer.zero_grad()
                 output = self.model(X)
                 loss = self.loss(output, y)
                 loss.backward()
-                self.optimizer.step(beta = self.beta)
+                self.optimizer.step(beta=self.beta)
 
-                # clone model to user model 
-                self.clone_model_paramenter(self.model.parameters(), self.local_model)
+                # clone model to user model
+                self.clone_model_paramenter(
+                    self.model.parameters(), self.local_model)
 
-        return LOSS    
+        return LOSS
 
     def train_one_step(self):
         self.model.train()
-        #step 1
+        # step 1
         X, y = self.get_next_test_batch()
         self.optimizer.zero_grad()
         output = self.model(X)
         loss = self.loss(output, y)
         loss.backward()
         self.optimizer.step()
-            #step 2
+        # step 2
         X, y = self.get_next_train_batch()
         self.optimizer.zero_grad()
         output = self.model(X)

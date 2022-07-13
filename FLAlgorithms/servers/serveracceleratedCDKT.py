@@ -1,6 +1,4 @@
 import torch
-import os
-import torch.multiprocessing as mp
 from tqdm import tqdm
 import torch.nn as nn
 from FLAlgorithms.users.userCDKT import UserCDKT
@@ -9,7 +7,7 @@ from FLAlgorithms.servers.serverbase_dem import Dem_Server
 from Setting import rs_file_path, N_clients
 from utils.data_utils import write_file
 from utils.dem_plot import plot_from_file
-from utils.model_utils import read_data, read_user_data, read_public_data
+from utils.model_utils import read_user_data, read_public_data
 from torch.utils.data import DataLoader
 import numpy as np
 from FLAlgorithms.optimizers.fedoptimizer import DemProx_SGD

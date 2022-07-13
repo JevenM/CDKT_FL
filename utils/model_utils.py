@@ -1,19 +1,17 @@
 import json
-import numpy as np
 import os
 import torch
-import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
 from tqdm import trange
 import numpy as np
 import random
-from sklearn.model_selection import train_test_split
 
+# for mnist and fmnist
 IMAGE_SIZE = 28
 IMAGE_PIXELS = IMAGE_SIZE * IMAGE_SIZE
 NUM_CHANNELS = 1
-
+# for Cifar dataset
 IMAGE_SIZE_CIFAR = 32
 NUM_CHANNELS_CIFAR = 3
 
@@ -251,18 +249,20 @@ def read_cifa_data():
 
 
 def read_data(dataset):
-    '''parses data in given train and test data directories
+    '''
+    @Mao
+    parses data in given train and test data directories
 
     assumes:
-    - the data in the input directories are .json files with 
-        keys 'users' and 'user_data'
+    - the data in the input directories are .json files with keys 'users' and 'user_data'
     - the set of train set users is the same as the set of test set users
 
     Return:
-        clients: list of client ids
-        groups: list of group ids; empty list if none found
-        train_data: dictionary of train data
-        test_data: dictionary of test data
+        `clients`: list of client ids
+        `groups`: list of group ids; empty list if none found
+        `train_data`: dictionary of train data
+        `test_data`: dictionary of test data
+        `public_data`: dictionary of public data
     '''
 
     # if(dataset == "Cifar10"):
@@ -273,6 +273,7 @@ def read_data(dataset):
     test_data_dir = os.path.join('data', dataset, 'data', 'test')
     public_data_dir = os.path.join('data', dataset, 'data', 'public')
     clients = []
+    # 分组用不到
     groups = []
     train_data = {}
     test_data = {}
@@ -285,8 +286,8 @@ def read_data(dataset):
         with open(file_path, 'r') as inf:
             cdata = json.load(inf)
         clients.extend(cdata['users'])
-        if 'hierarchies' in cdata:
-            groups.extend(cdata['hierarchies'])
+        # if 'hierarchies' in cdata:
+        #     groups.extend(cdata['hierarchies'])
         train_data.update(cdata['user_data'])
 
     test_files = os.listdir(test_data_dir)
@@ -310,21 +311,34 @@ def read_data(dataset):
     return clients, groups, train_data, test_data, public_data
 
 
-def read_public_data(data, dataset):
+def read_public_data(data: tuple, dataset: str) -> list:
+    '''
+    @Mao
+
+    Select public data from given dataset.
+
+    Args:
+        `data`(tuple):
+            [0] clients: list of client ids
+            [1] groups: list of group ids; empty list if none found
+            [2] train_data: dictionary of train data
+            [3] test_data: dictionary of test data
+            [4] public_data: dictionary of data samples
+        `dataset`(str): string of the dataset name
+
+    Returns:
+        `public_data`(list): public data samples list
+    '''
     public_data = data[4]
     X_public, y_public = public_data['x'], public_data['y']
     if (dataset == "Mnist" or dataset == "fmnist"):
-        X_public, y_public = public_data['x'], public_data['y']
         X_public = torch.Tensor(
             X_public).view(-1, NUM_CHANNELS, IMAGE_SIZE, IMAGE_SIZE).type(torch.float32)
         y_public = torch.Tensor(y_public).type(torch.int64)
     elif (dataset == "Cifar10" or dataset == "Cifar100"):
-
-        X_public, y_public = public_data['x'], public_data['y']
         X_public = torch.Tensor(X_public).view(-1, NUM_CHANNELS_CIFAR, IMAGE_SIZE_CIFAR, IMAGE_SIZE_CIFAR).type(
             torch.float32)
         y_public = torch.Tensor(y_public).type(torch.int64)
-
     else:
         X_public = torch.Tensor(X_public).type(torch.float32)
         y_public = torch.Tensor(y_public).type(torch.int64)
@@ -333,7 +347,23 @@ def read_public_data(data, dataset):
     return public_data
 
 
-def read_user_data(index, data, dataset):
+def read_user_data(index, data: tuple, dataset: str) -> tuple:
+    '''
+    @Mao
+
+    read data for user whose index is `index`
+
+    Args:
+        `index`(int): client index
+        `data`(tuple):
+            [0] `clients`: list of client ids.
+            [1] `groups`: list of group ids; empty list if none found.
+            [2] `train_data`: dictionary of train data.
+            [3] `test_data`: dictionary of test data.
+
+            [4] `public_data`: dictionary of data samples, keys: `x`, `y`.
+        `dataset`(str): string of the dataset name.
+    '''
     id = data[0][index]
     train_data = data[2][id]
     test_data = data[3][id]
@@ -360,6 +390,9 @@ def read_user_data(index, data, dataset):
         X_test = torch.Tensor(X_test).view(-1, NUM_CHANNELS_CIFAR,
                                            IMAGE_SIZE_CIFAR, IMAGE_SIZE_CIFAR).type(torch.float32)
         y_test = torch.Tensor(y_test).type(torch.int64)
+        X_public = torch.Tensor(X_public).view(-1, NUM_CHANNELS_CIFAR, IMAGE_SIZE_CIFAR, IMAGE_SIZE_CIFAR).type(
+            torch.float32)
+        y_public = torch.Tensor(y_public).type(torch.int64)
     else:
         X_train = torch.Tensor(X_train).type(torch.float32)
         y_train = torch.Tensor(y_train).type(torch.int64)

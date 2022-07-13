@@ -96,12 +96,14 @@ class Net_DemAI_Client(nn.Module):
         return x, activation3
 
 
-# activation = {}
-# def get_activation(name):
-#
-#     def hook(model, input, output):
-#         activation[name] = output.detach()
-#     return hook
+activation = {}
+
+
+def get_activation(name):
+    def hook(model, input, output):
+        activation[name] = output.detach()
+    return hook
+
 
 class Mclr_CrossEntropy(nn.Module):
     def __init__(self, input_dim=784, output_dim=10):

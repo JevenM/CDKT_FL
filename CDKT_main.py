@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# !/usr/bin/env python
 
 # import comet_ml at the top of your file
 from comet_ml import Experiment
@@ -14,7 +14,6 @@ from utils.model_utils import read_data
 from FLAlgorithms.trainmodel.models import DNN, DNN2, CNNCifar, CNNCifar_Server, CNNCifar_Server_3layer, Mclr_Logistic, Net_DemAI, Net_DemAI_Client
 import torch
 
-from utils.plot_utils import average_data
 torch.manual_seed(0)
 
 
@@ -26,7 +25,7 @@ torch.manual_seed(0)
 
 # Create an experiment with your api key:
 def main(experiment, dataset, algorithm, model,  client_model, batch_size, learning_rate, beta, L_k, num_glob_iters,
-         local_epochs, optimizer, numusers, K, personal_learning_rate, times, comet, gpu, cutoff, args):
+         local_epochs, numusers, K, personal_learning_rate, times, comet, gpu, cutoff, args):
 
     # Get device status: Check GPU or CPU
     device = torch.device("cuda:{}".format(
@@ -89,49 +88,49 @@ def main(experiment, dataset, algorithm, model,  client_model, batch_size, learn
                 experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(
                     learning_rate) + "_" + str(num_glob_iters) + "_" + str(local_epochs) + "_" + str(numusers) + "_" + str(args.total_users))
             server = FedAvg(experiment, device, data, algorithm, model, client_model, batch_size,
-                            learning_rate, beta, L_k, num_glob_iters, local_epochs, optimizer, numusers, i, cutoff, args)
+                            learning_rate, beta, L_k, num_glob_iters, local_epochs, numusers, i, cutoff, args)
 
         elif(algorithm == "PerAvg"):
             if(comet):
                 experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(
                     personal_learning_rate) + "_" + str(learning_rate) + "_" + str(num_glob_iters) + "_" + str(local_epochs) + "_" + str(numusers) + "_" + str(args.total_users))
             server = PerAvg(experiment, device, data, algorithm, model, batch_size, learning_rate,
-                            beta, L_k, num_glob_iters, local_epochs, optimizer, numusers, i, cutoff)
+                            beta, L_k, num_glob_iters, local_epochs, numusers, i, cutoff)
 
         elif (algorithm == "CDKT"):
             if (comet):
                 experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(
                     learning_rate) + "_" + str(num_glob_iters) + "_" + str(local_epochs) + "_" + str(numusers) + "_" + str(args.total_users))
-            server = CDKT(experiment, device, data,  algorithm, model, client_model, batch_size,
-                          learning_rate, beta, L_k, num_glob_iters, local_epochs, optimizer, numusers, i, cutoff, args)
+            server = CDKT(experiment, device, data, algorithm, model, client_model, batch_size,
+                          learning_rate, beta, L_k, num_glob_iters, local_epochs, numusers, i, cutoff, args)
 
         elif(algorithm == "FedU"):
             if(comet):
                 experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(
                     learning_rate) + "_" + str(L_k) + "L_K" + "_" + str(num_glob_iters) + "_" + str(local_epochs) + "_" + str(numusers) + "_" + str(args.total_users))
             server = FedU(experiment, device, data, algorithm, model, batch_size, learning_rate,
-                          beta, L_k, num_glob_iters, local_epochs, optimizer, numusers, K, i, cutoff)
+                          beta, L_k, num_glob_iters, local_epochs, numusers, K, i, cutoff)
 
         elif(algorithm == "pFedMe"):
             if(comet):
                 experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(learning_rate) + "_" + str(
                     personal_learning_rate) + "_" + str(num_glob_iters) + "_" + str(local_epochs) + "_" + str(numusers) + "_" + str(args.total_users))
             server = pFedMe(experiment, device, data, algorithm, model, batch_size, learning_rate, beta,
-                            L_k, num_glob_iters, local_epochs, optimizer, numusers, K, personal_learning_rate, i, cutoff)
+                            L_k, num_glob_iters, local_epochs, numusers, K, personal_learning_rate, i, cutoff)
 
         elif(algorithm == "Local"):
             if(comet):
                 experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(
                     learning_rate) + "_" + str(L_k) + "_" + str(num_glob_iters) + "_" + str(local_epochs) + "_" + str(numusers) + "_" + str(args.total_users))
             server = FedLocal(experiment, device, data, algorithm, model, batch_size, learning_rate,
-                              beta, L_k, num_glob_iters, local_epochs, optimizer, numusers, i, cutoff)
+                              beta, L_k, num_glob_iters, local_epochs, numusers, i, cutoff)
 
         elif(algorithm == "Global"):
             if(comet):
                 experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "_" + str(
                     learning_rate) + "_" + str(L_k) + "_" + str(num_glob_iters) + "_" + str(local_epochs) + "_" + str(numusers) + "_" + str(args.total_users))
             server = FedGlobal(experiment, device, data, algorithm, model, batch_size, learning_rate,
-                               beta, L_k, num_glob_iters, local_epochs, optimizer, numusers, i, cutoff)
+                               beta, L_k, num_glob_iters, local_epochs, numusers, i, cutoff)
         else:
             print("Algorithm is invalid")
             return
@@ -154,8 +153,8 @@ if __name__ == "__main__":
     print("Batch size: {}".format(args.batch_size))
     print("Learing rate       : {}".format(args.learning_rate))
     print("Average Moving       : {}".format(args.beta))
-    print("num of users       : {}".format(args.total_users))
-    print("Subset of users      : {}".format(args.subusers))
+    print("total users       : {}".format(args.total_users))
+    print("fraction of users      : {}".format(args.subusers))
     print("Number of global rounds       : {}".format(args.num_global_iters))
     print("Number of local rounds       : {}".format(args.local_epochs))
     print("Dataset       : {}".format(args.dataset))
@@ -184,7 +183,7 @@ if __name__ == "__main__":
             "L_k": args.L_k,
             "num_glob_iters": args.num_global_iters,
             "local_epochs": args.local_epochs,
-            "optimizer": args.optimizer,
+            # "optimizer": args.optimizer,
             "numusers": args.subusers,
             "totalusers": args.total_users,
             "K": args.K,
@@ -211,7 +210,7 @@ if __name__ == "__main__":
         L_k=args.L_k,
         num_glob_iters=args.num_global_iters,
         local_epochs=args.local_epochs,
-        optimizer=args.optimizer,
+        # optimizer=args.optimizer,
         numusers=args.subusers,
         K=args.K,
         personal_learning_rate=args.personal_learning_rate,

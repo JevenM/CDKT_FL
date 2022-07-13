@@ -1,3 +1,4 @@
+from Setting import *
 from scipy.cluster.hierarchy import dendrogram
 import matplotlib.pyplot as plt
 import sys
@@ -8,7 +9,6 @@ import h5py as hf
 root_path = os.path.abspath(__file__)
 root_path = '/'.join(root_path.split('/')[:-2])
 sys.path.append(root_path)
-from Setting import *
 
 plt.rcParams.update({'font.size': 16})  # font size 10 12 14 16 main 16
 plt.rcParams['lines.linewidth'] = 2
@@ -47,11 +47,11 @@ def write_file(file_name="../results/untitled.h5", **kwargs):
 
 
 def read_data(file_name="../results/untitled.h5"):
-    print(":/")
+    print("We will read data file - dem_plot!")
     dic_data = {}
     with hf.File(file_name, "r") as f:
         # List all groups
-        #print("Keys: %s" % f.keys())
+        # print("Keys: %s" % f.keys())
         for key in f.keys():
             dic_data[key] = f[key][:]
     return dic_data
@@ -95,9 +95,14 @@ def plot_dendo_data_dem():
 
 
 def plot_from_file():
+    '''
+    @Mao
+
+    Plot from file.
+    '''
     f_data = read_data(rs_file_path)
-    print("--------->>>>> Plotting")
-    print("Algorithm:", RUNNING_ALG)
+    print("--------->>>>> Plotting >>>>>------------")
+    print("Result of Algorithm:", RUNNING_ALG)
     alg_name = RUNNING_ALG + "_"
 
     plt.figure(4)
@@ -109,17 +114,20 @@ def plot_from_file():
              f_data['cg_avg_data_test'], label="Client_gen_test")
     plt.legend()
     plt.xlabel("Global Rounds")
+    plt.ylabel("Accuracy")
     plt.ylim(YLim, 1.02)
     plt.grid()
     plt.title("AVG Clients Model (Spec-Gen) Testing Accuracy")
-    plt.savefig(PLOT_PATH + alg_name+"AVGC_Spec_Gen_Testing.pdf")
+    plt.savefig(PLOT_PATH + alg_name + "AVGC_Spec_Gen_Testing.pdf")
 
     plt.figure(7)
     plt.clf()
     plt.plot(f_data['root_test'], linestyle="--", label="root test")
+    # other selected users test acc curves
     plt.plot(f_data['cs_data_test'])
     plt.legend()
     plt.xlabel("Global Rounds")
+    plt.ylabel("Accuracy")
     plt.ylim(0, 1.02)
     plt.grid()
     plt.title("Testing Client Specialization")
@@ -131,6 +139,7 @@ def plot_from_file():
     plt.plot(f_data['cs_data_train'])
     plt.legend()
     plt.xlabel("Global Rounds")
+    plt.ylabel("Accuracy")
     plt.ylim(0, 1.02)
     plt.grid()
     plt.title("Training Client Specialization")
@@ -160,23 +169,23 @@ def plot_from_file():
 
     plt.show()
 
-    print("** Summary Results: ---- Training ----")
-    print("AVG Clients Specialization - Training:", f_data['cs_avg_data_train'])
-    print("AVG Clients Generalization - Training::", f_data['cg_avg_data_train'])
-    print("Root performance - Training:", f_data['root_train'])
-    print("** Summary Results: ---- Testing ----")
+    print("******* Summary Results: ---- Training ----")
+    print("AVG Clients Specialization - Training:",
+          f_data['cs_avg_data_train'])
+    # empty
+    # print("AVG Clients Generalization - Training::", f_data['cg_avg_data_train'])
+    # empty
+    # print("Root performance - Training:", f_data['root_train'])
+
+    print("******* Summary Results: ---- Testing ----")
     print("AVG Clients Specialization - Testing:", f_data['cs_avg_data_test'])
     print("AVG Clients Generalization - Testing:", f_data['cg_avg_data_test'])
     print("Root performance - Testing:", f_data['root_test'])
 
 
 if __name__ == '__main__':
-    #
-    # PLOT_PATH = "."+PLOT_PATH
-    # RS_PATH = "."+RS_PATH
     rp = "."+complex_file_path
     # rp = "./results/"+"DemLearn_mnist_demlearn_I50_time.h5"
-    # plot_from_file()
     print(rp)
     time_data = read_data(rp)
     data = time_data['time_complex']

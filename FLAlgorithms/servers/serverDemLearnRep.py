@@ -205,5 +205,5 @@ class DemLearnRep(Dem_Server):
                    dendo_data=self.dendo_data, dendo_data_round=self.dendo_data_round,  #Dendrogram data
                    N_clients=[N_clients], TREE_UPDATE_PERIOD=[TREE_UPDATE_PERIOD])      #Setting
         plot_from_file()
-    
-  
+
+

@@ -1755,8 +1755,6 @@ def plot_all_figs():
 
 
 if __name__ == '__main__':
-    # figure
-    PLOT_PATH = PLOT_PATH_FIG
     # results, h5 files
     RS_PATH = FIG_PATH
 

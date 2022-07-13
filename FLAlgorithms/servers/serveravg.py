@@ -11,9 +11,9 @@ from utils.model_utils import read_user_data
 
 # Implementation for FedAvg Server
 class FedAvg(Dem_Server):
-    def __init__(self, experiment, device, dataset, algorithm, model, client_model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, optimizer, num_users, times, cutoff, args):
+    def __init__(self, experiment, device, dataset, algorithm, model, client_model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, num_users, times, cutoff, args):
         super().__init__(experiment, device, dataset, algorithm,
-                         model[0], client_model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, optimizer, num_users, times, args)
+                         model[0], client_model, batch_size, learning_rate, beta, L_k, num_glob_iters, local_epochs, num_users, times, args)
 
         # Initialize data for all users
         self.K = 0
@@ -30,7 +30,7 @@ class FedAvg(Dem_Server):
                 if(i in randomList):
                     train, test = self.get_data(train, test)
             user = UserAVG(device, id, train, test, public, model, client_model,
-                           batch_size, learning_rate, beta, L_k, local_epochs, optimizer)
+                           batch_size, learning_rate, beta, L_k, local_epochs)
             self.users.append(user)
             self.total_train_samples += user.train_samples
 
