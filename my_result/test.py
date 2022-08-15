@@ -1,5 +1,6 @@
 
 
+from datetime import date
 import numpy as np
 # from sklearn.datasets import fetch_openml
 # from tqdm import trange
@@ -111,7 +112,22 @@ mnist_data = [6868, 7837, 6955, 7105, 6789, 6281, 6841, 7256, 6790, 6923]
 # add dimension 2 and 3
 # print(np.sum(te, (1, 2), keepdims=True))
 
-props = np.array([[[v-100]] for v in mnist_data]) * \
-    props/np.sum(props, (1, 2), keepdims=True)
+# props = np.array([[[v-100]] for v in mnist_data]) * \
+#     props/np.sum(props, (1, 2), keepdims=True)
 
-print(props[0])
+# print(props[0])
+
+d = np.array([0 for i in range(10)])
+
+mmm = np.array([[1, 2, 0, 3, 0, 5, 0, 6, 8, 0],
+                [1, 0, 2, 0, 0, 5, 0, 6, 0, 4],
+                [0, 2, 0, 3, 3, 0, 2, 0, 8, 2]])
+
+a = np.array([1, 2, 0, 3, 0, 5, 0, 6, 8, 0])
+b = np.array([1, 0, 2, 0, 0, 5, 0, 6, 0, 4])
+c = np.array([0, 2, 0, 3, 3, 0, 2, 0, 8, 2])
+d += np.array([1 if i == 0 else 0 for i in a])
+d += np.array([1 if i == 0 else 0 for i in b])
+d += np.array([1 if i == 0 else 0 for i in c])
+print(d)
+print(np.divide(mmm, d))
