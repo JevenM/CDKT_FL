@@ -1,5 +1,4 @@
 import torch
-import os
 
 from FLAlgorithms.users.userFedU import UserFedU
 from FLAlgorithms.servers.serverbase import Server
@@ -58,7 +57,6 @@ class FedU(Server):
             user.set_grads(grads)
 
     def train(self):
-        loss = []
         # only board cast one time
         self.send_parameters()
         # self.meta_split_users()

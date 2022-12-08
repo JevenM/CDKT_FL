@@ -1,7 +1,6 @@
 from FLAlgorithms.users.userglobal import UserGlobal
 from FLAlgorithms.servers.serverbase import Server
 from utils.model_utils import read_user_data
-import numpy as np
 
 
 class FedGlobal(Server):
@@ -40,7 +39,6 @@ class FedGlobal(Server):
         print("Finished creating Global model.")
 
     def train(self):
-        loss = []
         # only board cast one time
         self.send_parameters()
         # self.meta_split_users()

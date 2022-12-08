@@ -195,7 +195,7 @@ class Server:
 
         for user in self.selected_users:
             self.add_parameters(user, user.train_samples / total_train)
-            #self.add_parameters(user, 1 / len(self.selected_users))
+            # self.add_parameters(user, 1 / len(self.selected_users))
 
         # aaggregate avergage model with previous model using parameter beta
         for pre_param, param in zip(previous_param, self.model.parameters()):
@@ -223,6 +223,7 @@ class Server:
 
     def save_results(self):
         '''
+        @Mao
         Save loss, accurancy to h5 file
         '''
         dir_path = "./results"
@@ -270,7 +271,6 @@ class Server:
         '''
         num_samples = []
         tot_correct = []
-        losses = []
         mean_accurancy = []
         for c in self.users:
             ct, ns, ma = c.test()
@@ -357,6 +357,9 @@ class Server:
         # tqdm.write('At round {} global training loss: {}'.format(i, np.dot(stats_train[4], stats_train[2])*1.0/np.sum(stats_train[2])))
 
     def evaluate(self):
+        '''
+        @Mao evaluate the models on each user
+        '''
         stats = self.test()
         stats_train = self.train_error_and_loss()
         glob_acc = np.sum(stats[2])*1.0/np.sum(stats[1])
@@ -381,6 +384,9 @@ class Server:
         print("Average Global Trainning Loss: ", train_loss)
 
     def evaluate_personalized_model(self):
+        '''
+        @Mao not global model
+        '''
         stats = self.test_persionalized_model()
         stats_train = self.train_error_and_loss_persionalized_model()
         glob_acc = np.sum(stats[2])*1.0/np.sum(stats[1])
@@ -413,16 +419,22 @@ class Server:
         print("Average C-GEN: ", c_gen_acc)
 
     def evaluate_one_step(self):
+        '''
+        @Mao test for Per-FedAvg
+        '''
+        # train a batch
         for c in self.users:
             c.train_one_step()
 
         stats = self.test()
+        # get acc and losses on all train samples
         stats_train = self.train_error_and_loss()
 
         # set local model back to client for training process.
         for c in self.users:
             c.update_parameters(c.local_model)
 
+        # The number of correctly predicted samples divided by the total number of samples
         glob_acc = np.sum(stats[2])*1.0/np.sum(stats[1])
         train_acc = np.sum(stats_train[2])*1.0/np.sum(stats_train[1])
         glob_acc_avg = np.mean(stats[3])

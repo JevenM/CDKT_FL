@@ -12,6 +12,7 @@ class FedLocal(Server):
 
         # Initialize data for all  users
         self.K = 0
+        # not used
         self.sub_data = cutoff
         total_users = len(dataset[0][0])
         # np.random.seed(0)
@@ -45,7 +46,6 @@ class FedLocal(Server):
             user.set_grads(grads)
 
     def train(self):
-        loss = []
         # only board cast one time
         self.send_parameters()
         # self.meta_split_users()

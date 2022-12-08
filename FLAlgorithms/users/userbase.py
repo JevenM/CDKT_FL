@@ -1,10 +1,6 @@
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 import os
-import json
 from torch.utils.data import DataLoader
-import numpy as np
 import copy
 
 
@@ -67,6 +63,9 @@ class User:
         return self.model.parameters()
 
     def clone_model_paramenter(self, param, clone_param):
+        '''
+        @Mao save self.model to self.local_model
+        '''
         for param, clone_param in zip(param, clone_param):
             clone_param.data = param.data.clone()
         return clone_param
@@ -121,6 +120,7 @@ class User:
         for x, y in self.trainloaderfull:
             x, y = x.to(self.device), y.to(self.device)
             output = self.model(x)
+            # output, _ = self.model(x)
             train_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
             loss += self.loss(output, y)
             #print(self.id + ", Train Accuracy:", train_acc)

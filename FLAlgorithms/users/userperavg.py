@@ -1,10 +1,5 @@
-import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import os
-import json
-from torch.utils.data import DataLoader
-from FLAlgorithms.optimizers.fedoptimizer import PerFedAvg, FEDLOptimizer
+from FLAlgorithms.optimizers.fedoptimizer import PerFedAvg
 from FLAlgorithms.users.userbase import User
 
 # Implementation for Per-FedAvg clients
@@ -16,8 +11,10 @@ class UserPerAvg(User):
         super().__init__(device, numeric_id, train_data, test_data, model[0], batch_size, learning_rate, beta, L_k,
                          local_epochs)
         self.total_users = total_users
+        # actually the proportion of users involved in communication
         self.num_users = num_users
 
+        # model name: str
         if(model[1] == "Mclr_CrossEntropy"):
             self.loss = nn.CrossEntropyLoss()
         else:
@@ -35,6 +32,9 @@ class UserPerAvg(User):
                 model_grad.data = new_grads[idx]
 
     def train(self, epochs):
+        '''
+        @Mao train Per-FedAvg
+        '''
         LOSS = 0
         self.model.train()
         num_minibatch = int(self.train_samples / self.batch_size)
@@ -57,7 +57,7 @@ class UserPerAvg(User):
                 loss.backward()
                 self.optimizer.step(beta=self.beta)
 
-                # clone model to user model
+                # clone model to user local_model
                 self.clone_model_paramenter(
                     self.model.parameters(), self.local_model)
 

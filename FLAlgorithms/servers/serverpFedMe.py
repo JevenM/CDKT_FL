@@ -2,7 +2,6 @@ import torch
 from FLAlgorithms.users.userpFedMe import UserpFedMe
 from FLAlgorithms.servers.serverbase import Server
 from utils.model_utils import read_user_data
-import numpy as np
 
 # Implementation for pFedMe Server
 
@@ -67,14 +66,12 @@ class pFedMe(Server):
             for user in self.users:
                 user.train(self.local_epochs)
             # choose several users to send back upated model to server
-            # self.personalized_evaluate()
             self.selected_users = self.select_users(glob_iter, self.num_users)
 
             # Evaluate gloal model on user for each interation
-            #print("Evaluate persionalized model")
+            print("Evaluate persionalized model")
             # print("")
             self.evaluate_personalized_model()
-            # self.aggregate_parameters()
             self.persionalized_aggregate_parameters()
 
         self.save_results()

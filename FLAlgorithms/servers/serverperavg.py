@@ -15,6 +15,7 @@ class PerAvg(Server):
         # Initialize data for all  users
         self.K = 0
         total_users = len(dataset[0][0])
+        # not used
         self.sub_data = cutoff
         if(self.sub_data):
             randomList = self.get_partion(total_users)
@@ -50,9 +51,8 @@ class PerAvg(Server):
             # send all parameter for users
             self.send_parameters()
 
-            # Evaluate gloal model on user for each interation
+            # Evaluate global model on user for each interation
             print("Evaluate global model with one step update")
-            print("")
             self.evaluate_one_step()
 
             # choose several users to send back upated model to server
